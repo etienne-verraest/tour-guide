@@ -10,18 +10,22 @@ import org.apache.commons.lang3.time.StopWatch;
 import lombok.extern.slf4j.Slf4j;
 import tourGuide.domain.User;
 import tourGuide.service.TourGuideService;
+import tourGuide.service.UserService;
 
 @Slf4j
 public class Tracker extends Thread {
 
+	private final TourGuideService tourGuideService;
+
+	private final UserService userService;
+
 	private static final long trackingPollingInterval = TimeUnit.MINUTES.toSeconds(5);
 	private final ExecutorService executorService = Executors.newSingleThreadExecutor();
-	private final TourGuideService tourGuideService;
 	private boolean stop = false;
 
-	public Tracker(TourGuideService tourGuideService) {
+	public Tracker(TourGuideService tourGuideService, UserService userService) {
 		this.tourGuideService = tourGuideService;
-
+		this.userService = userService;
 		executorService.submit(this);
 	}
 
@@ -42,7 +46,7 @@ public class Tracker extends Thread {
 				break;
 			}
 
-			List<User> users = tourGuideService.getAllUsers();
+			List<User> users = userService.getAllUsers();
 			log.debug("Begin Tracker. Tracking {} users.", users.size());
 
 			stopWatch.start();
