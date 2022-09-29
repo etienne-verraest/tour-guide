@@ -12,7 +12,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import gpsUtil.GpsUtil;
@@ -31,18 +31,21 @@ import tripPricer.TripPricer;
 @Slf4j
 public class TourGuideService {
 
+	@Autowired
 	private final GpsUtil gpsUtil;
+
+	@Autowired
 	private final RewardsService rewardsService;
+
 	private final TripPricer tripPricer = new TripPricer();
+
 	public final Tracker tracker;
 
-	@Value("${tourGuide.testMode}")
-	boolean testMode;
+	private boolean testMode = true;
 
 	public TourGuideService(GpsUtil gpsUtil, RewardsService rewardsService) {
 		this.gpsUtil = gpsUtil;
 		this.rewardsService = rewardsService;
-
 		if (testMode) {
 			log.info("TestMode enabled");
 			log.debug("Initializing users");
