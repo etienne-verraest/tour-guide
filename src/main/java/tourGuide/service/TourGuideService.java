@@ -12,14 +12,14 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import gpsUtil.GpsUtil;
 import gpsUtil.location.Attraction;
 import gpsUtil.location.Location;
 import gpsUtil.location.VisitedLocation;
+import lombok.extern.slf4j.Slf4j;
 import tourGuide.domain.User;
 import tourGuide.domain.UserReward;
 import tourGuide.helper.InternalTestHelper;
@@ -28,24 +28,26 @@ import tripPricer.Provider;
 import tripPricer.TripPricer;
 
 @Service
+@Slf4j
 public class TourGuideService {
 
-	private Logger logger = LoggerFactory.getLogger(TourGuideService.class);
 	private final GpsUtil gpsUtil;
 	private final RewardsService rewardsService;
 	private final TripPricer tripPricer = new TripPricer();
 	public final Tracker tracker;
-	boolean testMode = true;
+
+	@Value("${tourGuide.testMode}")
+	boolean testMode;
 
 	public TourGuideService(GpsUtil gpsUtil, RewardsService rewardsService) {
 		this.gpsUtil = gpsUtil;
 		this.rewardsService = rewardsService;
 
 		if (testMode) {
-			logger.info("TestMode enabled");
-			logger.debug("Initializing users");
+			log.info("TestMode enabled");
+			log.debug("Initializing users");
 			initializeInternalUsers();
-			logger.debug("Finished initializing users");
+			log.debug("Finished initializing users");
 		}
 		tracker = new Tracker(this);
 		addShutDownHook();
@@ -131,7 +133,7 @@ public class TourGuideService {
 
 			internalUserMap.put(userName, user);
 		});
-		logger.debug("Created " + InternalTestHelper.getInternalUserNumber() + " internal test users.");
+		log.debug("Created {} internal test users.", InternalTestHelper.getInternalUserNumber());
 	}
 
 	private void generateUserLocationHistory(User user) {
