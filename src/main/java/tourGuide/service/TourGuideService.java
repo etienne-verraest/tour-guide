@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import gpsUtil.GpsUtil;
@@ -19,9 +20,8 @@ import tripPricer.TripPricer;
 @Slf4j
 public class TourGuideService {
 
-	private static final String tripPricerApiKey = "test-server-api-key";
-
-	private boolean testMode = true;
+	@Value("${tripPricer.api.key}")
+	private static String tripPricerApiKey;
 
 	@Autowired
 	private RewardsService rewardsService;
