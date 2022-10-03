@@ -1,0 +1,5 @@
+{"properties": [{
+  "name": "internal.userNumber",
+  "type": "java.lang.Integer",
+  "description": "Number of Internal Numbers to create"
+}]}

@@ -2,12 +2,14 @@ package tourGuide.service;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import gpsUtil.GpsUtil;
 import gpsUtil.location.Attraction;
 import gpsUtil.location.Location;
 import gpsUtil.location.VisitedLocation;
+import lombok.Setter;
 import rewardCentral.RewardCentral;
 import tourGuide.domain.User;
 import tourGuide.domain.UserReward;
@@ -19,23 +21,17 @@ public class RewardsService {
 
 	// Proximity is in miles
 	private int defaultProximityBuffer = 10;
+
+	@Setter
 	private int proximityBuffer = defaultProximityBuffer;
+
 	private int attractionProximityRange = 200;
-	private final GpsUtil gpsUtil;
-	private final RewardCentral rewardsCentral;
 
-	public RewardsService(GpsUtil gpsUtil, RewardCentral rewardCentral) {
-		this.gpsUtil = gpsUtil;
-		this.rewardsCentral = rewardCentral;
-	}
+	@Autowired
+	private GpsUtil gpsUtil;
 
-	public void setProximityBuffer(int proximityBuffer) {
-		this.proximityBuffer = proximityBuffer;
-	}
-
-	public void setDefaultProximityBuffer() {
-		proximityBuffer = defaultProximityBuffer;
-	}
+	@Autowired
+	private RewardCentral rewardsCentral;
 
 	public void calculateRewards(User user) {
 		List<VisitedLocation> userLocations = user.getVisitedLocations();
@@ -52,6 +48,10 @@ public class RewardsService {
 				}
 			}
 		}
+	}
+
+	public void setDefaultProximityBuffer() {
+		proximityBuffer = defaultProximityBuffer;
 	}
 
 	public boolean isWithinAttractionProximity(Attraction attraction, Location location) {

@@ -3,6 +3,7 @@ package tourGuide.service;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import gpsUtil.GpsUtil;
@@ -11,7 +12,6 @@ import gpsUtil.location.VisitedLocation;
 import lombok.extern.slf4j.Slf4j;
 import tourGuide.domain.User;
 import tourGuide.domain.UserReward;
-import tourGuide.tracker.Tracker;
 import tripPricer.Provider;
 import tripPricer.TripPricer;
 
@@ -20,30 +20,18 @@ import tripPricer.TripPricer;
 public class TourGuideService {
 
 	private static final String tripPricerApiKey = "test-server-api-key";
+
 	private boolean testMode = true;
+
+	@Autowired
+	private RewardsService rewardsService;
+
+	@Autowired
+	private UserService userService;
 
 	private GpsUtil gpsUtil;
 
-	private RewardsService rewardsService;
-
-	private UserService userService = new UserService();
-
-	private TripPricer tripPricer = new TripPricer();
-
-	public Tracker tracker;
-
-	public TourGuideService(GpsUtil gpsUtil, RewardsService rewardsService) {
-		this.gpsUtil = gpsUtil;
-		this.rewardsService = rewardsService;
-		if (testMode) {
-			log.info("TestMode enabled");
-			log.debug("Initializing users");
-			userService.initializeInternalUsers();
-			log.debug("Finished initializing users");
-		}
-		tracker = new Tracker(this, userService);
-		addShutDownHook();
-	}
+	private TripPricer tripPricer;
 
 	public List<UserReward> getUserRewards(User user) {
 		return user.getUserRewards();
@@ -81,14 +69,4 @@ public class TourGuideService {
 
 		return nearbyAttractions;
 	}
-
-	private void addShutDownHook() {
-		Runtime.getRuntime().addShutdownHook(new Thread() {
-			@Override
-			public void run() {
-				tracker.stopTracking();
-			}
-		});
-	}
-
 }
