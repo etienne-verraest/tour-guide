@@ -6,6 +6,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang3.time.StopWatch;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import lombok.extern.slf4j.Slf4j;
 import tourGuide.domain.User;
@@ -13,11 +15,14 @@ import tourGuide.service.TourGuideService;
 import tourGuide.service.UserService;
 
 @Slf4j
+@Component
 public class Tracker extends Thread {
 
-	private final TourGuideService tourGuideService;
+	@Autowired
+	private TourGuideService tourGuideService;
 
-	private final UserService userService;
+	@Autowired
+	private UserService userService;
 
 	private static final long trackingPollingInterval = TimeUnit.MINUTES.toSeconds(5);
 	private final ExecutorService executorService = Executors.newSingleThreadExecutor();
@@ -26,7 +31,8 @@ public class Tracker extends Thread {
 	public Tracker(TourGuideService tourGuideService, UserService userService) {
 		this.tourGuideService = tourGuideService;
 		this.userService = userService;
-		executorService.submit(this);
+		System.out.println("Tracker initialized");
+		userService.initializeInternalUsers();
 	}
 
 	/**

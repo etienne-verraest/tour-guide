@@ -7,6 +7,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import lombok.Getter;
@@ -23,9 +24,10 @@ public class UserService {
 	// internal users are provided and stored in memory
 
 	// Internal users configuration
-	@Getter
 	@Setter
-	private static int internalUserNumber = 100;
+	@Getter
+	@Value("${internal.userNumber}")
+	public int internalUserNumber;
 
 	// Internal users generation
 	private final Map<String, User> internalUserMap = new HashMap<>();
