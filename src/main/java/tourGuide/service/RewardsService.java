@@ -28,7 +28,7 @@ public class RewardsService {
 
 	private GpsUtil gpsUtil;
 
-	private RewardCentral rewardsCentral;
+	private RewardCentral rewardsCentral = new RewardCentral();
 
 	public void calculateRewards(User user) {
 		List<VisitedLocation> userLocations = user.getVisitedLocations();
@@ -59,7 +59,7 @@ public class RewardsService {
 		return getDistance(attraction, visitedLocation.location) > proximityBuffer ? false : true;
 	}
 
-	private int getRewardPoints(Attraction attraction, User user) {
+	public int getRewardPoints(Attraction attraction, User user) {
 		return rewardsCentral.getAttractionRewardPoints(attraction.attractionId, user.getUserId());
 	}
 
