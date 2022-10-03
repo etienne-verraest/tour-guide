@@ -24,6 +24,8 @@ public class Tracker extends Thread {
 	@Autowired
 	private UserService userService;
 
+	private static boolean testMode = true;
+
 	private static final long trackingPollingInterval = TimeUnit.MINUTES.toSeconds(5);
 	private final ExecutorService executorService = Executors.newSingleThreadExecutor();
 	private boolean stop = false;
@@ -32,7 +34,9 @@ public class Tracker extends Thread {
 		this.tourGuideService = tourGuideService;
 		this.userService = userService;
 		System.out.println("Tracker initialized");
-		userService.initializeInternalUsers();
+		if (testMode) {
+			userService.initializeInternalUsers();
+		}
 	}
 
 	/**
