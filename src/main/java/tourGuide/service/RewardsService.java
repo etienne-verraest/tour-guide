@@ -2,7 +2,6 @@ package tourGuide.service;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import gpsUtil.GpsUtil;
@@ -27,10 +26,8 @@ public class RewardsService {
 
 	private int attractionProximityRange = 200;
 
-	@Autowired
 	private GpsUtil gpsUtil;
 
-	@Autowired
 	private RewardCentral rewardsCentral;
 
 	public void calculateRewards(User user) {

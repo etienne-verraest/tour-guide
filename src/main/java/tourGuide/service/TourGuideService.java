@@ -10,14 +10,12 @@ import org.springframework.stereotype.Service;
 import gpsUtil.GpsUtil;
 import gpsUtil.location.Attraction;
 import gpsUtil.location.VisitedLocation;
-import lombok.extern.slf4j.Slf4j;
 import tourGuide.domain.User;
 import tourGuide.domain.UserReward;
 import tripPricer.Provider;
 import tripPricer.TripPricer;
 
 @Service
-@Slf4j
 public class TourGuideService {
 
 	@Value("${tripPricer.api.key}")
@@ -25,9 +23,6 @@ public class TourGuideService {
 
 	@Autowired
 	private RewardsService rewardsService;
-
-	@Autowired
-	private UserService userService;
 
 	private GpsUtil gpsUtil;
 
@@ -38,13 +33,11 @@ public class TourGuideService {
 	}
 
 	public VisitedLocation getUserLocation(User user) {
-		VisitedLocation visitedLocation = (user.getVisitedLocations().size() > 0) ? user.getLastVisitedLocation()
-				: trackUserLocation(user);
-		return visitedLocation;
+		return (!user.getVisitedLocations().isEmpty()) ? user.getLastVisitedLocation() : trackUserLocation(user);
 	}
 
 	public List<Provider> getTripDeals(User user) {
-		int cumulatativeRewardPoints = user.getUserRewards().stream().mapToInt(i -> i.getRewardPoints()).sum();
+		int cumulatativeRewardPoints = user.getUserRewards().stream().mapToInt(UserReward::getRewardPoints).sum();
 		List<Provider> providers = tripPricer.getPrice(tripPricerApiKey, user.getUserId(),
 				user.getUserPreferences().getNumberOfAdults(), user.getUserPreferences().getNumberOfChildren(),
 				user.getUserPreferences().getTripDuration(), cumulatativeRewardPoints);
@@ -66,7 +59,6 @@ public class TourGuideService {
 				nearbyAttractions.add(attraction);
 			}
 		}
-
 		return nearbyAttractions;
 	}
 }
