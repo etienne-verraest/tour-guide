@@ -15,7 +15,8 @@ import gpsUtil.location.Location;
 import gpsUtil.location.VisitedLocation;
 import tourGuide.domain.User;
 import tourGuide.domain.UserReward;
-import tourGuide.domain.response.ClosestAttractionsResponse;
+import tourGuide.domain.response.AttractionInformation;
+import tourGuide.domain.response.NearbyAttractionsResponse;
 import tripPricer.Provider;
 import tripPricer.TripPricer;
 
@@ -56,29 +57,37 @@ public class TourGuideService {
 		return visitedLocation;
 	}
 
-	public List<ClosestAttractionsResponse> getNearByAttractions(User user) {
+	public NearbyAttractionsResponse getNearByAttractions(User user) {
+
+		// Getting attractions list and user location
 		List<Attraction> attractions = gpsUtil.getAttractions();
 		Location currentUserLocation = getUserLocation(user).location;
 
+		// Sorting the 5 nearest attractions for each user depending on the distance in
+		// miles
 		attractions = attractions.stream()
 				.sorted(Comparator.comparingDouble(
-						a -> rewardsService.getDistance(new Location(a.latitude, a.longitude), currentUserLocation)))
+						a -> rewardsService.getDistance(new Location(a.longitude, a.latitude), currentUserLocation)))
 				.limit(5).collect(Collectors.toList());
 
-		List<ClosestAttractionsResponse> nearbyAttractions = new ArrayList<>();
-
+		// Fetching information for the 5 nearest attractions
+		List<AttractionInformation> nearbyAttractions = new ArrayList<>();
 		for (Attraction a : attractions) {
-			ClosestAttractionsResponse response = new ClosestAttractionsResponse();
-			response.setNameOfAttraction(a.attractionName);
-			response.setUserLatitude(currentUserLocation.latitude);
-			response.setUserLongitude(currentUserLocation.longitude);
-			response.setAttractionLatitude(a.latitude);
-			response.setAttractionLongitude(a.longitude);
-			response.setDistanceToAttraction(
-					rewardsService.getDistance(new Location(a.latitude, a.longitude), currentUserLocation));
-			// response.setAttractionRewardPoints(rewardsService.getRewardPoints(a, user));
-			nearbyAttractions.add(response);
+			AttractionInformation attractionInformation = new AttractionInformation();
+			Location attractionLocation = new Location(a.longitude, a.latitude);
+			attractionInformation.setNameOfAttraction(a.attractionName);
+			attractionInformation.setAttractionLocation(attractionLocation);
+			attractionInformation
+					.setDistanceToAttraction(rewardsService.getDistance(attractionLocation, currentUserLocation));
+			attractionInformation.setAttractionRewardPoints(rewardsService.getRewardPoints(a, user));
+			nearbyAttractions.add(attractionInformation);
 		}
-		return nearbyAttractions;
+
+		// Setting the response data object that will be used to read collected datas
+		NearbyAttractionsResponse response = new NearbyAttractionsResponse();
+		response.setUserLocation(currentUserLocation);
+		response.setNearbyAttractions(nearbyAttractions);
+
+		return response;
 	}
 }
