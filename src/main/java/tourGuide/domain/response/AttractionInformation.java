@@ -1,19 +1,14 @@
 package tourGuide.domain.response;
 
+import gpsUtil.location.Location;
 import lombok.Data;
 
 @Data
-public class ClosestAttractionsResponse {
+public class AttractionInformation {
 
 	private String nameOfAttraction;
 
-	private Double attractionLatitude;
-
-	private Double attractionLongitude;
-
-	private Double userLatitude;
-
-	private Double userLongitude;
+	private Location attractionLocation;
 
 	private Double distanceToAttraction;
 
