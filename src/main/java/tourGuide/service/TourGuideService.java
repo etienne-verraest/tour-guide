@@ -17,6 +17,7 @@ import tourGuide.domain.User;
 import tourGuide.domain.UserReward;
 import tourGuide.domain.response.AttractionInformation;
 import tourGuide.domain.response.NearbyAttractionsResponse;
+import tourGuide.domain.response.UserLocationResponse;
 import tripPricer.Provider;
 import tripPricer.TripPricer;
 
@@ -28,6 +29,9 @@ public class TourGuideService {
 
 	@Autowired
 	private RewardsService rewardsService;
+
+	@Autowired
+	private UserService userService;
 
 	private GpsUtil gpsUtil = new GpsUtil();
 
@@ -58,7 +62,6 @@ public class TourGuideService {
 	}
 
 	public NearbyAttractionsResponse getNearByAttractions(User user) {
-
 		// Getting attractions list and user location
 		List<Attraction> attractions = gpsUtil.getAttractions();
 		Location currentUserLocation = getUserLocation(user).location;
@@ -87,6 +90,22 @@ public class TourGuideService {
 		NearbyAttractionsResponse response = new NearbyAttractionsResponse();
 		response.setUserLocation(currentUserLocation);
 		response.setNearbyAttractions(nearbyAttractions);
+
+		return response;
+	}
+
+	// gathers the user's current location from their stored location
+	// history.
+	public List<UserLocationResponse> getAllUsersLocation() {
+
+		List<User> users = userService.getAllUsers();
+		List<UserLocationResponse> response = new ArrayList<>();
+		for (User u : users) {
+			UserLocationResponse userLocationResponse = new UserLocationResponse();
+			userLocationResponse.setUserId(u.getUserId());
+			userLocationResponse.setUserLocation(getUserLocation(u).location);
+			response.add(userLocationResponse);
+		}
 
 		return response;
 	}

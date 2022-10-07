@@ -5,8 +5,11 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import javax.annotation.PostConstruct;
+
 import org.apache.commons.lang3.time.StopWatch;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import lombok.extern.slf4j.Slf4j;
@@ -24,15 +27,15 @@ public class Tracker extends Thread {
 	@Autowired
 	private UserService userService;
 
-	private static boolean testMode = true;
+	@Value("${testMode.enabled}")
+	private boolean testMode;
 
 	private static final long trackingPollingInterval = TimeUnit.MINUTES.toSeconds(5);
 	private final ExecutorService executorService = Executors.newSingleThreadExecutor();
 	private boolean stop = false;
 
-	public Tracker(TourGuideService tourGuideService, UserService userService) {
-		this.tourGuideService = tourGuideService;
-		this.userService = userService;
+	@PostConstruct
+	public void initTracker() {
 		System.out.println("Tracker initialized");
 		if (testMode) {
 			userService.initializeInternalUsers();
