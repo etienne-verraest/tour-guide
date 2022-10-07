@@ -3,6 +3,8 @@ package tourGuide.controller;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -12,6 +14,7 @@ import com.jsoniter.output.JsonStream;
 import gpsUtil.location.VisitedLocation;
 import tourGuide.domain.User;
 import tourGuide.domain.response.NearbyAttractionsResponse;
+import tourGuide.domain.response.UserLocationResponse;
 import tourGuide.service.TourGuideService;
 import tourGuide.service.UserService;
 import tripPricer.Provider;
@@ -25,43 +28,52 @@ public class TourGuideController {
 	@Autowired
 	UserService userService;
 
+	/**
+	 * Return a string when calling the default url (in order to test if the API is UP or DOWB)
+	 *
+	 * @return							String is returned if the connection is succesful
+	 */
 	@GetMapping("/")
-	public String index() {
-		return "Greetings from TourGuide!";
+	public ResponseEntity<String> defaultUrl() {
+		return new ResponseEntity<>("Greetings from TourGuide!", HttpStatus.OK);
 	}
 
+	/**
+	 * Get location of a given user
+	 *
+	 * @param userName					String : the name of the user to fetch location
+	 * @return							Location with longitude and latitude
+	 */
 	@GetMapping("/getLocation")
-	public String getLocation(@RequestParam String userName) {
+	public ResponseEntity<VisitedLocation> getLocation(@RequestParam String userName) {
 		VisitedLocation visitedLocation = tourGuideService.getUserLocation(getUser(userName));
-		return JsonStream.serialize(visitedLocation.location);
+		return new ResponseEntity<>(visitedLocation, HttpStatus.OK);
 	}
 
+	/**
+	 * Get 5 closest attractions for a given user
+	 *
+	 * @param userName					String : the name of the user to fetch attractions
+	 * @return							5 closest attractions with related datas
+	 */
 	@GetMapping("/getNearbyAttractions")
-	public NearbyAttractionsResponse getNearbyAttractions(@RequestParam String userName) {
-		return tourGuideService.getNearByAttractions(getUser(userName));
+	public ResponseEntity<NearbyAttractionsResponse> getNearbyAttractions(@RequestParam String userName) {
+		return new ResponseEntity<>(tourGuideService.getNearByAttractions(getUser(userName)), HttpStatus.OK);
+	}
+
+	/**
+	 * Get location of every user registered on the application
+	 *
+	 * @return							A List with every user id and their location
+	 */
+	@GetMapping("/getAllCurrentLocations")
+	public ResponseEntity<List<UserLocationResponse>> getAllCurrentLocations() {
+		return new ResponseEntity<>(tourGuideService.getAllUsersLocation(), HttpStatus.OK);
 	}
 
 	@GetMapping("/getRewards")
 	public String getRewards(@RequestParam String userName) {
 		return JsonStream.serialize(tourGuideService.getUserRewards(getUser(userName)));
-	}
-
-	@GetMapping("/getAllCurrentLocations")
-	public String getAllCurrentLocations() {
-		// TODO: Get a list of every user's most recent location as JSON
-		// - Note: does not use gpsUtil to query for their current location,
-		// but rather gathers the user's current location from their stored location
-		// history.
-		//
-		// Return object should be the just a JSON mapping of userId to Locations
-		// similar to:
-		// {
-		// "019b04a9-067a-4c76-8817-ee75088c3822":
-		// {"longitude":-48.188821,"latitude":74.84371}
-		// ...
-		// }
-
-		return JsonStream.serialize("");
 	}
 
 	@GetMapping("/getTripDeals")
