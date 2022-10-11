@@ -5,8 +5,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import gpsUtil.GpsUtil;
@@ -24,25 +22,24 @@ import tripPricer.TripPricer;
 @Service
 public class TourGuideService {
 
-	@Value("${tripPricer.api.key}")
-	private static String tripPricerApiKey;
+	private static String tripPricerApiKey = "test-server-api-key";
 
-	@Autowired
-	private RewardsService rewardsService;
+	private RewardsService rewardsService = new RewardsService();
 
-	@Autowired
-	private UserService userService;
+	private UserService userService = new UserService();
 
 	private GpsUtil gpsUtil = new GpsUtil();
 
-	private TripPricer tripPricer;
+	private TripPricer tripPricer = new TripPricer();
 
 	public List<UserReward> getUserRewards(User user) {
 		return user.getUserRewards();
 	}
 
 	public VisitedLocation getUserLocation(User user) {
-		return (!user.getVisitedLocations().isEmpty()) ? user.getLastVisitedLocation() : trackUserLocation(user);
+		VisitedLocation visitedLocation = (user.getVisitedLocations().size() > 0) ? user.getLastVisitedLocation()
+				: trackUserLocation(user);
+		return visitedLocation;
 	}
 
 	public List<Provider> getTripDeals(User user) {
