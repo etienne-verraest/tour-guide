@@ -5,12 +5,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import javax.annotation.PostConstruct;
-
 import org.apache.commons.lang3.time.StopWatch;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
 
 import lombok.extern.slf4j.Slf4j;
 import tourGuide.domain.User;
@@ -18,36 +13,28 @@ import tourGuide.service.TourGuideService;
 import tourGuide.service.UserService;
 
 @Slf4j
-@Component
 public class Tracker extends Thread {
 
-	@Autowired
 	private TourGuideService tourGuideService;
 
-	@Autowired
 	private UserService userService;
 
-	@Value("${testMode.enabled}")
-	private boolean testMode;
+	private boolean testMode = true;
 
 	private static final long trackingPollingInterval = TimeUnit.MINUTES.toSeconds(5);
 	private final ExecutorService executorService = Executors.newSingleThreadExecutor();
 	private boolean stop = false;
 
-	@PostConstruct
-	public void initTracker() {
-		System.out.println("Tracker initialized");
+	public Tracker(TourGuideService tourGuideService, UserService userService) {
+		this.tourGuideService = tourGuideService;
+		this.userService = userService;
+
 		if (testMode) {
 			userService.initializeInternalUsers();
 		}
-	}
 
-	/**
-	 * Assures to shut down the Tracker thread
-	 */
-	public void stopTracking() {
-		stop = true;
-		executorService.shutdownNow();
+		// Executing the run method of the Tracker Thread
+		executorService.submit(this);
 	}
 
 	@Override
@@ -63,7 +50,11 @@ public class Tracker extends Thread {
 			log.debug("Begin Tracker. Tracking {} users.", users.size());
 
 			stopWatch.start();
-			users.forEach(u -> tourGuideService.trackUserLocation(u));
+
+			for (User u : users) {
+				tourGuideService.trackUserLocation(u);
+			}
+
 			stopWatch.stop();
 
 			log.debug("Tracker Time Elapsed: {} seconds.", TimeUnit.MILLISECONDS.toSeconds(stopWatch.getTime()));
@@ -76,6 +67,22 @@ public class Tracker extends Thread {
 				break;
 			}
 		}
+	}
 
+	/**
+	 * Assures to shut down the Tracker thread
+	 */
+	public void stopTracking() {
+		stop = true;
+		executorService.shutdownNow();
+	}
+
+	private void addShutDownHook() {
+		Runtime.getRuntime().addShutdownHook(new Thread() {
+			@Override
+			public void run() {
+				stopTracking();
+			}
+		});
 	}
 }
