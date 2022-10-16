@@ -26,7 +26,7 @@ public class RewardsService {
 
 	private int attractionProximityRange = 200;
 
-	private GpsUtil gpsUtil;
+	private GpsUtil gpsUtil = new GpsUtil();
 
 	private RewardCentral rewardsCentral = new RewardCentral();
 
