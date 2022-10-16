@@ -1,6 +1,7 @@
 package tourGuide.controller;
 
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -43,9 +44,12 @@ public class TourGuideController {
 	 *
 	 * @param userName					String : the name of the user to fetch location
 	 * @return							Location with longitude and latitude
+	 * @throws ExecutionException
+	 * @throws InterruptedException
 	 */
 	@GetMapping("/getLocation")
-	public ResponseEntity<VisitedLocation> getLocation(@RequestParam String userName) {
+	public ResponseEntity<VisitedLocation> getLocation(@RequestParam String userName)
+			throws InterruptedException, ExecutionException {
 		VisitedLocation visitedLocation = tourGuideService.getUserLocation(getUser(userName));
 		return new ResponseEntity<>(visitedLocation, HttpStatus.OK);
 	}
@@ -55,9 +59,12 @@ public class TourGuideController {
 	 *
 	 * @param userName					String : the name of the user to fetch attractions
 	 * @return							5 closest attractions with related datas
+	 * @throws ExecutionException
+	 * @throws InterruptedException
 	 */
 	@GetMapping("/getNearbyAttractions")
-	public ResponseEntity<NearbyAttractionsResponse> getNearbyAttractions(@RequestParam String userName) {
+	public ResponseEntity<NearbyAttractionsResponse> getNearbyAttractions(@RequestParam String userName)
+			throws InterruptedException, ExecutionException {
 		return new ResponseEntity<>(tourGuideService.getNearByAttractions(getUser(userName)), HttpStatus.OK);
 	}
 
@@ -65,9 +72,12 @@ public class TourGuideController {
 	 * Get location of every user registered on the application
 	 *
 	 * @return							A List with every user id and their location
+	 * @throws ExecutionException
+	 * @throws InterruptedException
 	 */
 	@GetMapping("/getAllCurrentLocations")
-	public ResponseEntity<List<UserLocationResponse>> getAllCurrentLocations() {
+	public ResponseEntity<List<UserLocationResponse>> getAllCurrentLocations()
+			throws InterruptedException, ExecutionException {
 		return new ResponseEntity<>(tourGuideService.getAllUsersLocation(), HttpStatus.OK);
 	}
 
