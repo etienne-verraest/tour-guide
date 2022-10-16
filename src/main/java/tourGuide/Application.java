@@ -1,6 +1,5 @@
 package tourGuide;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -12,11 +11,9 @@ import tourGuide.tracker.Tracker;
 @SpringBootApplication
 public class Application implements CommandLineRunner {
 
-	@Autowired
-	private TourGuideService tourGuideService;
+	private TourGuideService tourGuideService = new TourGuideService();
 
-	@Autowired
-	private UserService userService;
+	private UserService userService = new UserService();
 
 	public static void main(String[] args) {
 		SpringApplication.run(Application.class, args);
@@ -24,7 +21,9 @@ public class Application implements CommandLineRunner {
 
 	@Override
 	public void run(String... args) throws Exception {
+
 		Tracker tracker = new Tracker(tourGuideService, userService);
+		tracker.startTrackingUsers();
 	}
 
 }
