@@ -21,7 +21,7 @@ public class UserService {
 	// internal users are provided and stored in memory
 
 	// Internal users configuration
-	public int internalUserNumber = 100;
+	public int internalUserNumber = 1000;
 
 	// Internal users generation
 	private final Map<String, User> internalUserMap = new HashMap<>();
@@ -44,7 +44,7 @@ public class UserService {
 	}
 
 	public List<User> getAllUsers() {
-		return internalUserMap.values().stream().collect(Collectors.toList());
+		return internalUserMap.values().parallelStream().collect(Collectors.toList());
 	}
 
 	public void addUser(User user) {
