@@ -10,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import gpsUtil.location.VisitedLocation;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -22,20 +21,20 @@ import tourGuide.service.UserService;
 @Component
 public class Tracker {
 
-	@Getter
-	@Value("${testMode.enabled}")
-	public boolean testMode;
-
-	@Setter
-	@Getter
-	@Value("${internal.userNumber}")
-	public int internalUserNumber;
-
 	@Autowired
 	private TourGuideService tourGuideService;
 
 	@Autowired
 	private UserService userService;
+
+	@Getter
+	@Value("${internal.liveTestMode.enabled}")
+	public boolean liveTestMode;
+
+	@Setter
+	@Getter
+	@Value("${internal.userNumber}")
+	public int internalUserNumber;
 
 	public Tracker(TourGuideService tourGuideService, UserService userService) {
 		this.tourGuideService = tourGuideService;
@@ -44,24 +43,25 @@ public class Tracker {
 
 	/**
 	 * When tracker has been created, we check if the testMode is enabled
+	 * If test mode is enabled, we initialize internal users
 	 */
 	@PostConstruct
 	public void initializeTracker() {
-		if (isTestMode()) {
+		if (isLiveTestMode()) {
 			userService.initializeInternalUsers(internalUserNumber);
 		}
 	}
 
 	/**
-	 * This method tracks user location.
+	 * This method starts the tracker.
 	 *
 	 * To improve performances, the method uses parallel streams.
 	 * Parallel streams will split the list into N chunks where N is your number of cores.
+	 * To get equal response time, core are set to 10 (changeable in application.properties)
 	 *
 	 * The time taken is outputted in milliseconds.
-	 *
 	 */
-	public void startTrackingUsers() {
+	public void startTracker() {
 		// Creating the StopWatch to analyze the performance results
 		StopWatch stopWatch = new StopWatch();
 
@@ -75,8 +75,7 @@ public class Tracker {
 		stopWatch.start();
 		users.parallelStream().forEach(u -> {
 			try {
-				VisitedLocation loc = tourGuideService.trackUserLocation(u).get();
-				// log.debug("{}", loc.location.latitude);
+				tourGuideService.trackUserLocation(u).get();
 			} catch (InterruptedException | ExecutionException e) {
 				log.debug("[Tracker] There was an error while tracking the users");
 				Thread.currentThread().interrupt();

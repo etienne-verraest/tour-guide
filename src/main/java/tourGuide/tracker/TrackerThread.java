@@ -41,7 +41,7 @@ public class TrackerThread extends Thread {
 				break;
 			}
 
-			tracker.startTrackingUsers();
+			tracker.startTracker();
 
 			try {
 				log.debug("[Tracker] Tracker sleeping. Next run scheduled in {} minutes.",

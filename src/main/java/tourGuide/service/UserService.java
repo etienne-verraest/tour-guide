@@ -39,7 +39,7 @@ public class UserService {
 
 			internalUserMap.put(userName, user);
 		});
-		log.debug("[Test Mode] Test mode is enabled. Created {} internal test users.", numberOfUsers);
+		log.debug("[User Service] Created {} internal test users.", numberOfUsers);
 	}
 
 	/**

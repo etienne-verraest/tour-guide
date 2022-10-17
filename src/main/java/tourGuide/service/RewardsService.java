@@ -1,6 +1,9 @@
 package tourGuide.service;
 
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import org.springframework.stereotype.Service;
 
@@ -27,31 +30,39 @@ public class RewardsService {
 
 	private int attractionProximityRange = 200;
 
+	// Number of threads to run the rewards calculation
+	private ExecutorService executorService = Executors.newFixedThreadPool(100);
+
 	/**
 	 * Calculate rewards for a given user, only if the user is near an unvisited attraction
 	 * The method doesn't return anything, but add the rewards to the user
+	 * It uses CompletableFuture runAsync() method to make non-blocking calls when executing the tracker
 	 *
 	 * @param user									User : The user we want to calculate the rewards of
 	 *
 	 */
 	public void calculateRewards(User user) {
+
+		// Getting users location and attractions
 		List<VisitedLocation> userLocations = user.getVisitedLocations();
 		List<Attraction> attractions = gpsUtil.getAttractions();
 
-		for (VisitedLocation visitedLocation : userLocations) {
-			for (Attraction attraction : attractions) {
+		// Calculate rewards for a given user and the attractions from the application
+		CompletableFuture.runAsync(() -> {
+			for (VisitedLocation visitedLocation : userLocations) {
+				for (Attraction attraction : attractions) {
 
-				// Using parallel streams to check faster if attraction has been visited
-				if (user.getUserRewards().parallelStream()
-						.filter(r -> r.attraction.attractionName.equals(attraction.attractionName)).count() == 0) {
+					// Using parallel streams to count faster on the filter method
+					if ((user.getUserRewards().parallelStream()
+							.filter(r -> r.attraction.attractionName.equals(attraction.attractionName)).count() == 0)
+							&& nearAttraction(visitedLocation, attraction)) {
 
-					if (nearAttraction(visitedLocation, attraction)) {
 						user.addUserReward(
 								new UserReward(visitedLocation, attraction, getRewardPoints(attraction, user)));
 					}
 				}
 			}
-		}
+		}, executorService);
 	}
 
 	/**
