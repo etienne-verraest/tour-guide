@@ -21,7 +21,7 @@ import tourGuide.service.RewardsService;
 import tourGuide.service.TourGuideService;
 import tourGuide.service.UserService;
 
-public class TestRewardsService {
+public class RewardsServiceTests {
 
 	@Autowired
 	UserService userService;

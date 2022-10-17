@@ -2,11 +2,21 @@
   {
     "name": "internal.userNumber",
     "type": "java.lang.Integer",
-    "description": "Number of Internal Numbers to create"
+    "description": "Number of Internal Users to create for the Live Test Mode"
   },
   {
     "name": "tripPricer.api.key",
     "type": "java.lang.String",
     "description": "API Key for Trip Pricer Module"
+  },
+  {
+    "name": "cores.number",
+    "type": "java.lang.String",
+    "description": "Number of cores used in parallel streams API"
+  },
+  {
+    "name": "internal.liveTestMode.enabled",
+    "type": "java.lang.String",
+    "description": "Live Test Mode allows application testing with generated users"
   }
 ]}

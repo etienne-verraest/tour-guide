@@ -27,7 +27,7 @@ import tourGuide.tracker.Tracker;
 @Slf4j
 @RunWith(SpringRunner.class)
 @SpringBootTest
-public class TestPerformance {
+public class PerformanceIT {
 
 	@Autowired
 	UserService userService;
@@ -68,12 +68,11 @@ public class TestPerformance {
 
 		// ARRANGE
 		userService.initializeInternalUsers(1000);
-		List<User> users = userService.getAllUsers();
 		StopWatch stopWatch = new StopWatch();
 
 		// ACT
 		stopWatch.start();
-		tracker.startTrackingUsers();
+		tracker.startTracker();
 		stopWatch.stop();
 
 		// ASSERT
@@ -88,14 +87,14 @@ public class TestPerformance {
 		// ARRANGE
 		userService.initializeInternalUsers(1000);
 		Attraction attraction = gpsUtil.getAttractions().get(0);
-		List<User> allUsers = userService.getAllUsers();
+		List<User> users = userService.getAllUsers();
 		StopWatch stopWatch = new StopWatch();
-		allUsers.parallelStream()
+		users.parallelStream()
 				.forEach(u -> u.addToVisitedLocations(new VisitedLocation(u.getUserId(), attraction, new Date())));
 
 		// ACT
 		stopWatch.start();
-		allUsers.parallelStream().forEach(u -> rewardsService.calculateRewards(u));
+		users.parallelStream().forEach(u -> rewardsService.calculateRewards(u));
 		stopWatch.stop();
 
 		// ASSERT

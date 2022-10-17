@@ -20,7 +20,7 @@ import tourGuide.service.TourGuideService;
 import tourGuide.service.UserService;
 import tripPricer.Provider;
 
-public class TestTourGuideService {
+public class TourGuideServiceTests {
 
 	@Autowired
 	UserService userService;

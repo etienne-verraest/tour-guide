@@ -24,8 +24,8 @@ public class Application implements CommandLineRunner {
 	public String numberOfCores;
 
 	@Getter
-	@Value("${testMode.enabled}")
-	public boolean testMode;
+	@Value("${internal.liveTestMode.enabled}")
+	public boolean liveTestMode;
 
 	public static void main(String[] args) {
 		SpringApplication.run(Application.class, args);
@@ -40,8 +40,8 @@ public class Application implements CommandLineRunner {
 		 */
 		System.setProperty("java.util.concurrent.ForkJoinPool.common.parallelism", numberOfCores);
 
-		// Starting the application tracker thread
-		if (isTestMode()) {
+		// We only start the tracker thread if the mode has been set to live testing
+		if (isLiveTestMode()) {
 			TrackerThread trackerThread = new TrackerThread(tourGuideService, userService);
 			trackerThread.start();
 		}
