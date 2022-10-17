@@ -7,8 +7,11 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import tourGuide.domain.User;
 import tourGuide.util.LocationGenerator;
@@ -17,15 +20,23 @@ import tourGuide.util.LocationGenerator;
 @Slf4j
 public class UserService {
 
-	// Database connection will be used for external users, but for testing purposes
-	// internal users are provided and stored in memory
+	/**
+	 *  Database connection will be used for external users, but for testing purposes
+	 *  internal users are provided and stored in memory
+	 */
 
-	// Internal users configuration
-	public int internalUserNumber = 1000;
+	@Setter
+	@Getter
+	@Value("${internal.userNumber}")
+	public int internalUserNumber;
 
-	// Internal users generation
 	private final Map<String, User> internalUserMap = new HashMap<>();
 
+	/**
+	 * Internal users generation method
+	 * The number of users to create is set in the application.properties file
+	 *
+	 */
 	public void initializeInternalUsers() {
 		IntStream.range(0, internalUserNumber).forEach(i -> {
 			String userName = "internalUser" + i;
@@ -36,17 +47,33 @@ public class UserService {
 
 			internalUserMap.put(userName, user);
 		});
-		log.debug("Created {} internal test users.", internalUserNumber);
+		log.debug("[TEST MODE] Created {} internal test users.", internalUserNumber);
 	}
 
+	/**
+	 * Get a user given its username
+	 *
+	 * @param userName						String : The username of the user to fetch
+	 * @return								User : Return a User Object if it exists
+	 */
 	public User getUser(String userName) {
 		return internalUserMap.get(userName);
 	}
 
+	/**
+	 * Converting the User HashMap into a List for performance purpose
+	 *
+	 * @return								List<User> : List containing all users
+	 */
 	public List<User> getAllUsers() {
 		return internalUserMap.values().parallelStream().collect(Collectors.toList());
 	}
 
+	/**
+	 * Add an internal user map, if the user already exists then the creation will fail
+	 *
+	 * @param user							User : The user to add
+	 */
 	public void addUser(User user) {
 		if (!internalUserMap.containsKey(user.getUserName())) {
 			internalUserMap.put(user.getUserName(), user);

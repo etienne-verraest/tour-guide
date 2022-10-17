@@ -16,6 +16,7 @@ import gpsUtil.location.VisitedLocation;
 import tourGuide.domain.User;
 import tourGuide.domain.response.NearbyAttractionsResponse;
 import tourGuide.domain.response.UserLocationResponse;
+import tourGuide.service.RewardsService;
 import tourGuide.service.TourGuideService;
 import tourGuide.service.UserService;
 import tripPricer.Provider;
@@ -28,6 +29,9 @@ public class TourGuideController {
 
 	@Autowired
 	UserService userService;
+
+	@Autowired
+	RewardsService rewardsService;
 
 	/**
 	 * Return a string when calling the default url (in order to test if the API is UP or DOWB)
@@ -83,7 +87,7 @@ public class TourGuideController {
 
 	@GetMapping("/getRewards")
 	public String getRewards(@RequestParam String userName) {
-		return JsonStream.serialize(tourGuideService.getUserRewards(getUser(userName)));
+		return JsonStream.serialize(rewardsService.getUserRewards(getUser(userName)));
 	}
 
 	@GetMapping("/getTripDeals")

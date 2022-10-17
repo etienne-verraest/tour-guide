@@ -18,7 +18,6 @@ public class RewardsService {
 
 	private static final double STATUTE_MILES_PER_NAUTICAL_MILE = 1.15077945;
 
-	// Proximity is in miles
 	private int defaultProximityBuffer = 10;
 
 	@Setter
@@ -45,6 +44,10 @@ public class RewardsService {
 				}
 			}
 		}
+	}
+
+	public List<UserReward> getUserRewards(User user) {
+		return user.getUserRewards();
 	}
 
 	public void setDefaultProximityBuffer() {
@@ -74,7 +77,6 @@ public class RewardsService {
 
 		double nauticalMiles = 60 * Math.toDegrees(angle);
 
-		// Statute Miles
 		return STATUTE_MILES_PER_NAUTICAL_MILE * nauticalMiles;
 	}
 

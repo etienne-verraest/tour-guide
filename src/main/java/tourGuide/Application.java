@@ -1,5 +1,6 @@
 package tourGuide;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -11,9 +12,11 @@ import tourGuide.tracker.Tracker;
 @SpringBootApplication
 public class Application implements CommandLineRunner {
 
-	private TourGuideService tourGuideService = new TourGuideService();
+	@Autowired
+	private TourGuideService tourGuideService;
 
-	private UserService userService = new UserService();
+	@Autowired
+	private UserService userService;
 
 	public static void main(String[] args) {
 		SpringApplication.run(Application.class, args);
@@ -22,6 +25,13 @@ public class Application implements CommandLineRunner {
 	@Override
 	public void run(String... args) throws Exception {
 
+		/**
+		 * To have the same result output for each user, we are setting the parallelstream
+		 * pool to 10 cores.
+		 */
+		System.setProperty("java.util.concurrent.ForkJoinPool.common.parallelism", "10");
+
+		// Starting the application tracker
 		Tracker tracker = new Tracker(tourGuideService, userService);
 		tracker.startTrackingUsers();
 	}

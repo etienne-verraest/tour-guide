@@ -9,6 +9,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import gpsUtil.GpsUtil;
@@ -24,32 +26,25 @@ import tourGuide.domain.response.UserLocationResponse;
 import tripPricer.Provider;
 import tripPricer.TripPricer;
 
-@Service
 @Slf4j
+@Service
 public class TourGuideService {
 
-	private static String tripPricerApiKey = "test-server-api-key";
+	@Value("${tripPricer.api.key}")
+	public String tripPricerApiKey;
 
-	private RewardsService rewardsService = new RewardsService();
+	@Autowired
+	private RewardsService rewardsService;
 
-	private UserService userService = new UserService();
+	@Autowired
+	private UserService userService;
 
 	private GpsUtil gpsUtil = new GpsUtil();
 
 	private TripPricer tripPricer = new TripPricer();
 
-	private ExecutorService executorService = Executors.newFixedThreadPool(150);
-
-	public List<UserReward> getUserRewards(User user) {
-		return user.getUserRewards();
-	}
-
-	public VisitedLocation getUserLocation(User user) throws InterruptedException, ExecutionException {
-		VisitedLocation visitedLocation = (!user.getVisitedLocations().isEmpty()) ? user.getLastVisitedLocation()
-				: trackUserLocation(user).get();
-
-		return visitedLocation;
-	}
+	// Number of threads to handle the tracker location task
+	private ExecutorService executorService = Executors.newFixedThreadPool(100);
 
 	public List<Provider> getTripDeals(User user) {
 		int cumulatativeRewardPoints = user.getUserRewards().stream().mapToInt(UserReward::getRewardPoints).sum();
@@ -58,6 +53,21 @@ public class TourGuideService {
 				user.getUserPreferences().getTripDuration(), cumulatativeRewardPoints);
 		user.setTripDeals(providers);
 		return providers;
+	}
+
+	/**
+	 * Get the location for a given user
+	 * It checks the user's location history beforehand and if there are no results, it call the tracker
+	 *
+	 * @param user									User : The user we want to get the location
+	 * @return										VisitedLocation : An object containg the User ID, the location and the time visited
+	 * @throws InterruptedException					Thrown if there was en error while fetching user location
+	 * @throws ExecutionException					Thrown if there was en error while fetching user location
+	 */
+	public VisitedLocation getUserLocation(User user) throws InterruptedException, ExecutionException {
+		VisitedLocation visitedLocation = (!user.getVisitedLocations().isEmpty()) ? user.getLastVisitedLocation()
+				: trackUserLocation(user).get();
+		return visitedLocation;
 	}
 
 	/**
@@ -76,7 +86,7 @@ public class TourGuideService {
 				.supplyAsync(() -> gpsUtil.getUserLocation(user.getUserId()), executorService)
 				.thenApply(visitedLocation -> {
 					user.addToVisitedLocations(visitedLocation);
-					// rewardsService.calculateRewards(user);
+					// TODO : rewardsService.calculateRewards(user);
 					return visitedLocation;
 				}).exceptionally(e -> {
 					log.debug("Error while tracking user : {}", e.getMessage());
@@ -88,6 +98,14 @@ public class TourGuideService {
 		return userLocationFuture;
 	}
 
+	/**
+	 * Get the five closest attractions for a given user
+	 *
+	 * @param user								The User we want to fetch
+	 * @return									The five closest attraction from the current user location
+	 * @throws InterruptedException				Thrown if there was en error while fetching user location
+	 * @throws ExecutionException				Thrown if there was en error while fetching user location
+	 */
 	public NearbyAttractionsResponse getNearByAttractions(User user) throws InterruptedException, ExecutionException {
 		// Getting attractions list and user location
 		List<Attraction> attractions = gpsUtil.getAttractions();
@@ -121,8 +139,13 @@ public class TourGuideService {
 		return response;
 	}
 
-	// gathers the user's current location from their stored location
-	// history.
+	/**
+	 * This method gathers the users' current location based on their stored location history
+	 *
+	 * @return								UserLocationResponse containing the user id and the location
+	 * @throws InterruptedException			Thrown if there was en error while fetching user location
+	 * @throws ExecutionException			Thrown if there was en error while fetching user location
+	 */
 	public List<UserLocationResponse> getAllUsersLocation() throws InterruptedException, ExecutionException {
 
 		List<User> users = userService.getAllUsers();
