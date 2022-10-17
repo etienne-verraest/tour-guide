@@ -14,6 +14,7 @@ import tourGuide.service.UserService;
 public class TrackerThread extends Thread {
 
 	private final long trackingPollingInterval = TimeUnit.MINUTES.toSeconds(5);
+	private boolean exit = false;
 
 	@Autowired
 	private TourGuideService tourGuideService;
@@ -29,7 +30,7 @@ public class TrackerThread extends Thread {
 	@Override
 	public void run() {
 		Tracker tracker = new Tracker(tourGuideService, userService);
-		while (true) {
+		while (!exit) {
 
 			if (Thread.currentThread().isInterrupted()) {
 				log.debug("[Tracker] Tracker stopped.");
@@ -47,5 +48,9 @@ public class TrackerThread extends Thread {
 			}
 
 		}
+	}
+
+	public void stopTracking() {
+		exit = true;
 	}
 }
