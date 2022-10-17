@@ -77,8 +77,9 @@ public class Tracker {
 		});
 		stopWatch.stop();
 
-		// Output performances
+		// Output performances and resetting the stop watch for further executions
 		log.debug("[Tracker] Tracking Over. Total Execution Time : {} ms", stopWatch.getTime());
+		stopWatch.reset();
 
 	}
 }

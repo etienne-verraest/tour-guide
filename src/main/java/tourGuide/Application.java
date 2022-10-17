@@ -8,7 +8,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import tourGuide.service.TourGuideService;
 import tourGuide.service.UserService;
-import tourGuide.tracker.Tracker;
+import tourGuide.tracker.TrackerThread;
 
 @SpringBootApplication
 public class Application implements CommandLineRunner {
@@ -35,9 +35,10 @@ public class Application implements CommandLineRunner {
 		 */
 		System.setProperty("java.util.concurrent.ForkJoinPool.common.parallelism", numberOfCores);
 
-		// Starting the application tracker
-		Tracker tracker = new Tracker(tourGuideService, userService);
-		tracker.startTrackingUsers();
+		// Starting the application tracker thread
+		TrackerThread trackerThread = new TrackerThread(tourGuideService, userService);
+		trackerThread.start();
+
 	}
 
 }
