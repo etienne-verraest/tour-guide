@@ -86,7 +86,7 @@ public class TourGuideService {
 				.supplyAsync(() -> gpsUtil.getUserLocation(user.getUserId()), executorService)
 				.thenApply(visitedLocation -> {
 					user.addToVisitedLocations(visitedLocation);
-					// TODO : rewardsService.calculateRewards(user);
+					rewardsService.calculateRewards(user);
 					return visitedLocation;
 				}).exceptionally(e -> {
 					log.debug("Error while tracking user : {}", e.getMessage());
