@@ -35,6 +35,7 @@ public class UserService {
 	/**
 	 * Internal users generation method
 	 * The number of users to create is set in the application.properties file
+	 * The method will only be called if the test mode is enabled
 	 *
 	 */
 	public void initializeInternalUsers() {
@@ -47,7 +48,7 @@ public class UserService {
 
 			internalUserMap.put(userName, user);
 		});
-		log.debug("[TEST MODE] Created {} internal test users.", internalUserNumber);
+		log.debug("[Test Mode] Test mode is enabled. Created {} internal test users.", internalUserNumber);
 	}
 
 	/**

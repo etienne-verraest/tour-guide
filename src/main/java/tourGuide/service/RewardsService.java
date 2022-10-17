@@ -16,7 +16,9 @@ import tourGuide.domain.UserReward;
 @Service
 public class RewardsService {
 
-	private static final double STATUTE_MILES_PER_NAUTICAL_MILE = 1.15077945;
+	private GpsUtil gpsUtil = new GpsUtil();
+
+	private RewardCentral rewardsCentral = new RewardCentral();
 
 	private int defaultProximityBuffer = 10;
 
@@ -25,18 +27,24 @@ public class RewardsService {
 
 	private int attractionProximityRange = 200;
 
-	private GpsUtil gpsUtil = new GpsUtil();
-
-	private RewardCentral rewardsCentral = new RewardCentral();
-
+	/**
+	 * Calculate rewards for a given user, only if the user is near an unvisited attraction
+	 * The method doesn't return anything, but add the rewards to the user
+	 *
+	 * @param user									User : The user we want to calculate the rewards of
+	 *
+	 */
 	public void calculateRewards(User user) {
 		List<VisitedLocation> userLocations = user.getVisitedLocations();
 		List<Attraction> attractions = gpsUtil.getAttractions();
 
 		for (VisitedLocation visitedLocation : userLocations) {
 			for (Attraction attraction : attractions) {
-				if (user.getUserRewards().stream()
+
+				// Using parallel streams to check faster if attraction has been visited
+				if (user.getUserRewards().parallelStream()
 						.filter(r -> r.attraction.attractionName.equals(attraction.attractionName)).count() == 0) {
+
 					if (nearAttraction(visitedLocation, attraction)) {
 						user.addUserReward(
 								new UserReward(visitedLocation, attraction, getRewardPoints(attraction, user)));
@@ -46,27 +54,65 @@ public class RewardsService {
 		}
 	}
 
+	/**
+	 * Get rewards list for a given user
+	 *
+	 * @param user									User : The User we want to fetch rewards
+	 * @return										List<UserReward> : A list of rewards for the given user
+	 */
 	public List<UserReward> getUserRewards(User user) {
 		return user.getUserRewards();
+	}
+
+	/**
+	 * Check if a location has proximity with a given attraction
+	 *
+	 * @param attraction							Attraction : The attraction we want to check
+	 * @param location								Location : The location we want to calculate the proximity of
+	 * @return										True if the distance calculated is in the attractionProximityRange
+	 */
+	public boolean isWithinAttractionProximity(Attraction attraction, Location location) {
+		return getDistance(attraction, location) < attractionProximityRange;
+	}
+
+	/**
+	 * Check if a user's location is near a given attraction
+	 *
+	 * @param visitedLocation						VisitedLocation : The current location of a user
+	 * @param attraction							Attraction : The attraction we want to check
+	 * @return										True if the distance calculate is in the proximityBuffer
+	 */
+	private boolean nearAttraction(VisitedLocation visitedLocation, Attraction attraction) {
+		return getDistance(attraction, visitedLocation.location) < proximityBuffer;
+	}
+
+	/**
+	 * Calculate the number of rewards points for a given attraction and a given user.
+	 * Points may vary between users because of their respective locations
+	 *
+	 * @param attraction							Attraction : The given attraction
+	 * @param user									User : the given user
+	 * @return										Integer : the total number of points awarded
+	 */
+	public int getRewardPoints(Attraction attraction, User user) {
+		return rewardsCentral.getAttractionRewardPoints(attraction.attractionId, user.getUserId());
 	}
 
 	public void setDefaultProximityBuffer() {
 		proximityBuffer = defaultProximityBuffer;
 	}
 
-	public boolean isWithinAttractionProximity(Attraction attraction, Location location) {
-		return getDistance(attraction, location) > attractionProximityRange ? false : true;
-	}
-
-	private boolean nearAttraction(VisitedLocation visitedLocation, Attraction attraction) {
-		return getDistance(attraction, visitedLocation.location) > proximityBuffer ? false : true;
-	}
-
-	public int getRewardPoints(Attraction attraction, User user) {
-		return rewardsCentral.getAttractionRewardPoints(attraction.attractionId, user.getUserId());
-	}
-
+	/**
+	 * Calculates the distance in miles between two locations
+	 *
+	 * @param loc1									Location : The first location
+	 * @param loc2									Location : The second location
+	 * @return										Double : The distance in miles between the two locations
+	 */
 	public double getDistance(Location loc1, Location loc2) {
+
+		final double STATUTE_MILES_PER_NAUTICAL_MILE = 1.15077945;
+
 		double lat1 = Math.toRadians(loc1.latitude);
 		double lon1 = Math.toRadians(loc1.longitude);
 		double lat2 = Math.toRadians(loc2.latitude);
