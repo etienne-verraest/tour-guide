@@ -3,7 +3,12 @@ package tourGuide.tracker;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
+import javax.annotation.PostConstruct;
+
 import org.apache.commons.lang3.time.StopWatch;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 import gpsUtil.location.VisitedLocation;
 import lombok.extern.slf4j.Slf4j;
@@ -12,18 +17,28 @@ import tourGuide.service.TourGuideService;
 import tourGuide.service.UserService;
 
 @Slf4j
+@Component
 public class Tracker {
 
+	@Value("${testMode.enabled}")
+	public boolean testMode;
+
+	@Autowired
 	private TourGuideService tourGuideService;
 
+	@Autowired
 	private UserService userService;
-
-	private boolean testMode = true;
 
 	public Tracker(TourGuideService tourGuideService, UserService userService) {
 		this.tourGuideService = tourGuideService;
 		this.userService = userService;
+	}
 
+	/**
+	 * When tracker has been created, we check if the testMode is enabled
+	 */
+	@PostConstruct
+	public void initializeTracker() {
 		if (testMode) {
 			userService.initializeInternalUsers();
 		}
@@ -45,7 +60,8 @@ public class Tracker {
 
 		// Get the list of every users
 		List<User> users = userService.getAllUsers();
-		log.debug("[Tracker] Number of cores available : {}", Runtime.getRuntime().availableProcessors());
+		log.debug("[Tracker] Number of cores available : {}",
+				System.getProperty("java.util.concurrent.ForkJoinPool.common.parallelism"));
 		log.debug("[Tracker] Tracking {} users.", users.size());
 
 		// Track every user in the list and analyze the performance
