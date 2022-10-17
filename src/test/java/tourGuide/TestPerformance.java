@@ -2,14 +2,12 @@ package tourGuide;
 
 import static org.junit.Assert.assertTrue;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang3.time.StopWatch;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,9 +38,10 @@ public class TestPerformance {
 	@Autowired
 	RewardsService rewardsService;
 
-	GpsUtil gpsUtil = new GpsUtil();
+	@Autowired
+	Tracker tracker;
 
-	Tracker tracker = new Tracker(tourGuideService, userService);
+	GpsUtil gpsUtil = new GpsUtil();
 
 	/*
 	 * A note on performance improvements:
@@ -67,51 +66,41 @@ public class TestPerformance {
 	@Test
 	public void highVolumeTrackLocation() throws InterruptedException, ExecutionException {
 
-		// Users should be incremented up to 100,000, and test finishes within 15
-		// minutes
+		// ARRANGE
 		userService.initializeInternalUsers(1000);
-
 		List<User> users = userService.getAllUsers();
-
 		StopWatch stopWatch = new StopWatch();
+
+		// ACT
 		stopWatch.start();
-		users.parallelStream().forEach(u -> {
-			try {
-				tourGuideService.trackUserLocation(u).get();
-			} catch (InterruptedException | ExecutionException e) {
-				log.debug("[Tracker] There was an error while tracking the users");
-				Thread.currentThread().interrupt();
-			}
-		});
+		tracker.startTrackingUsers();
 		stopWatch.stop();
 
-		System.out.println("highVolumeTrackLocation: Time Elapsed: " + stopWatch.getTime() + " ms.");
-		assertTrue(TimeUnit.MINUTES.toSeconds(15) >= TimeUnit.MILLISECONDS.toSeconds(stopWatch.getTime()));
+		// ASSERT
+		long getTime = stopWatch.getTime();
+		log.debug("[TEST] highVolumeTrackLocation() Total Execution Time : {} ms.", getTime);
+		assertTrue(TimeUnit.MINUTES.toSeconds(15) >= TimeUnit.MILLISECONDS.toSeconds(getTime));
 	}
 
-	@Ignore
 	@Test
 	public void highVolumeGetRewards() {
 
-		// Users should be incremented up to 100,000, and test finishes within 20
-		// minutes
-		StopWatch stopWatch = new StopWatch();
-		stopWatch.start();
-
+		// ARRANGE
+		userService.initializeInternalUsers(1000);
 		Attraction attraction = gpsUtil.getAttractions().get(0);
-		List<User> allUsers = new ArrayList<>();
-		allUsers = userService.getAllUsers();
-		allUsers.forEach(u -> u.addToVisitedLocations(new VisitedLocation(u.getUserId(), attraction, new Date())));
+		List<User> allUsers = userService.getAllUsers();
+		StopWatch stopWatch = new StopWatch();
+		allUsers.parallelStream()
+				.forEach(u -> u.addToVisitedLocations(new VisitedLocation(u.getUserId(), attraction, new Date())));
 
-		allUsers.forEach(u -> rewardsService.calculateRewards(u));
-
-		for (User user : allUsers) {
-			assertTrue(user.getUserRewards().size() > 0);
-		}
+		// ACT
+		stopWatch.start();
+		allUsers.parallelStream().forEach(u -> rewardsService.calculateRewards(u));
 		stopWatch.stop();
 
-		System.out.println("highVolumeGetRewards: Time Elapsed: " + TimeUnit.MILLISECONDS.toSeconds(stopWatch.getTime())
-				+ " seconds.");
+		// ASSERT
+		long getTime = stopWatch.getTime();
+		log.debug("[TEST] highVolumeGetRewards() Total Execution Time : {} ms.", getTime);
 		assertTrue(TimeUnit.MINUTES.toSeconds(20) >= TimeUnit.MILLISECONDS.toSeconds(stopWatch.getTime()));
 	}
 

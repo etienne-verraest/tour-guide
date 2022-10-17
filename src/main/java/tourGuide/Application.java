@@ -6,6 +6,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
+import lombok.Getter;
 import tourGuide.service.TourGuideService;
 import tourGuide.service.UserService;
 import tourGuide.tracker.TrackerThread;
@@ -22,6 +23,10 @@ public class Application implements CommandLineRunner {
 	@Value("${cores.number}")
 	public String numberOfCores;
 
+	@Getter
+	@Value("${testMode.enabled}")
+	public boolean testMode;
+
 	public static void main(String[] args) {
 		SpringApplication.run(Application.class, args);
 	}
@@ -35,9 +40,11 @@ public class Application implements CommandLineRunner {
 		 */
 		System.setProperty("java.util.concurrent.ForkJoinPool.common.parallelism", numberOfCores);
 
-		// Starting the application tracker thread if application has disabled testMode
-		TrackerThread trackerThread = new TrackerThread(tourGuideService, userService);
-		trackerThread.start();
+		// Starting the application tracker thread
+		if (isTestMode()) {
+			TrackerThread trackerThread = new TrackerThread(tourGuideService, userService);
+			trackerThread.start();
+		}
 	}
 
 }

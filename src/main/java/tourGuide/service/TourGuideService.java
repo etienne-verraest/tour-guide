@@ -101,10 +101,10 @@ public class TourGuideService {
 	/**
 	 * Get the five closest attractions for a given user
 	 *
-	 * @param user								The User we want to fetch
-	 * @return									The five closest attraction from the current user location
-	 * @throws InterruptedException				Thrown if there was en error while fetching user location
-	 * @throws ExecutionException				Thrown if there was en error while fetching user location
+	 * @param user									The User we want to fetch
+	 * @return										The five closest attraction from the current user location
+	 * @throws InterruptedException					Thrown if there was en error while fetching user location
+	 * @throws ExecutionException					Thrown if there was en error while fetching user location
 	 */
 	public NearbyAttractionsResponse getNearByAttractions(User user) throws InterruptedException, ExecutionException {
 		// Getting attractions list and user location
