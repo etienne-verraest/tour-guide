@@ -35,10 +35,9 @@ public class Application implements CommandLineRunner {
 		 */
 		System.setProperty("java.util.concurrent.ForkJoinPool.common.parallelism", numberOfCores);
 
-		// Starting the application tracker thread
+		// Starting the application tracker thread if application has disabled testMode
 		TrackerThread trackerThread = new TrackerThread(tourGuideService, userService);
 		trackerThread.start();
-
 	}
 
 }
