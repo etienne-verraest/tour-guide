@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 import tourGuide.domain.User;
 
 @NoArgsConstructor
-public class LocationGenerator {
+public class LocationGeneratorUtil {
 
 	public static void generateUserLocationHistory(User user) {
 		IntStream.range(0, 3).forEach(i -> {

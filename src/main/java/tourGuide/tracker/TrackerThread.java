@@ -27,6 +27,10 @@ public class TrackerThread extends Thread {
 		this.userService = userService;
 	}
 
+	/**
+	 * Runnable method of the thread.
+	 * The thread will be fetching user location every 5 minutes
+	 */
 	@Override
 	public void run() {
 		Tracker tracker = new Tracker(tourGuideService, userService);

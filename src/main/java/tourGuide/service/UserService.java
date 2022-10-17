@@ -7,14 +7,11 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import lombok.Getter;
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import tourGuide.domain.User;
-import tourGuide.util.LocationGenerator;
+import tourGuide.util.LocationGeneratorUtil;
 
 @Service
 @Slf4j
@@ -24,13 +21,7 @@ public class UserService {
 	 *  Database connection will be used for external users, but for testing purposes
 	 *  internal users are provided and stored in memory
 	 */
-
-	@Setter
-	@Getter
-	@Value("${internal.userNumber}")
-	public int internalUserNumber;
-
-	private final Map<String, User> internalUserMap = new HashMap<>();
+	private Map<String, User> internalUserMap = new HashMap<>();
 
 	/**
 	 * Internal users generation method
@@ -38,17 +29,17 @@ public class UserService {
 	 * The method will only be called if the test mode is enabled
 	 *
 	 */
-	public void initializeInternalUsers() {
-		IntStream.range(0, internalUserNumber).forEach(i -> {
+	public void initializeInternalUsers(int numberOfUsers) {
+		IntStream.range(0, numberOfUsers).forEach(i -> {
 			String userName = "internalUser" + i;
 			String phone = "000";
 			String email = userName + "@tourGuide.com";
 			User user = new User(UUID.randomUUID(), userName, phone, email);
-			LocationGenerator.generateUserLocationHistory(user);
+			LocationGeneratorUtil.generateUserLocationHistory(user);
 
 			internalUserMap.put(userName, user);
 		});
-		log.debug("[Test Mode] Test mode is enabled. Created {} internal test users.", internalUserNumber);
+		log.debug("[Test Mode] Test mode is enabled. Created {} internal test users.", numberOfUsers);
 	}
 
 	/**

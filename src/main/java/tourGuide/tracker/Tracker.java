@@ -11,6 +11,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import gpsUtil.location.VisitedLocation;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import tourGuide.domain.User;
 import tourGuide.service.TourGuideService;
@@ -20,8 +22,14 @@ import tourGuide.service.UserService;
 @Component
 public class Tracker {
 
+	@Getter
 	@Value("${testMode.enabled}")
 	public boolean testMode;
+
+	@Setter
+	@Getter
+	@Value("${internal.userNumber}")
+	public int internalUserNumber;
 
 	@Autowired
 	private TourGuideService tourGuideService;
@@ -39,8 +47,8 @@ public class Tracker {
 	 */
 	@PostConstruct
 	public void initializeTracker() {
-		if (testMode) {
-			userService.initializeInternalUsers();
+		if (isTestMode()) {
+			userService.initializeInternalUsers(internalUserNumber);
 		}
 	}
 
@@ -54,7 +62,6 @@ public class Tracker {
 	 *
 	 */
 	public void startTrackingUsers() {
-
 		// Creating the StopWatch to analyze the performance results
 		StopWatch stopWatch = new StopWatch();
 
@@ -80,6 +87,5 @@ public class Tracker {
 		// Output performances and resetting the stop watch for further executions
 		log.debug("[Tracker] Tracking Over. Total Execution Time : {} ms", stopWatch.getTime());
 		stopWatch.reset();
-
 	}
 }
