@@ -3,8 +3,10 @@ package tourGuide.domain;
 import gpsUtil.location.Attraction;
 import gpsUtil.location.VisitedLocation;
 import lombok.Data;
+import lombok.Generated;
 
 @Data
+@Generated
 public class UserReward {
 
 	public final VisitedLocation visitedLocation;
