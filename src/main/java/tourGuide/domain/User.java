@@ -7,9 +7,11 @@ import java.util.UUID;
 
 import gpsUtil.location.VisitedLocation;
 import lombok.Data;
+import lombok.Generated;
 import tripPricer.Provider;
 
 @Data
+@Generated
 public class User {
 
 	private final UUID userId;

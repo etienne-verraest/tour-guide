@@ -6,10 +6,12 @@ import javax.money.Monetary;
 import org.javamoney.moneta.Money;
 
 import lombok.Data;
+import lombok.Generated;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor
 @Data
+@Generated
 public class UserPreferences {
 
 	private int attractionProximity = Integer.MAX_VALUE;
