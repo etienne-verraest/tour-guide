@@ -7,15 +7,15 @@ import java.util.UUID;
 
 import gpsUtil.location.VisitedLocation;
 import lombok.Data;
-import lombok.Generated;
+import lombok.NoArgsConstructor;
 import tripPricer.Provider;
 
 @Data
-@Generated
+@NoArgsConstructor
 public class User {
 
-	private final UUID userId;
-	private final String userName;
+	private UUID userId;
+	private String userName;
 	private String phoneNumber;
 	private String emailAddress;
 	private Date latestLocationTimestamp;

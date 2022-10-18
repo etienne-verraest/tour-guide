@@ -6,13 +6,16 @@ import javax.money.Monetary;
 import org.javamoney.moneta.Money;
 
 import lombok.Data;
-import lombok.Generated;
 import lombok.NoArgsConstructor;
 
-@NoArgsConstructor
 @Data
-@Generated
+@NoArgsConstructor
 public class UserPreferences {
+
+	/**
+	 * Default values for user preferences, can be changed with a POST Request (see TourGuideController)
+	 *
+	 */
 
 	private int attractionProximity = Integer.MAX_VALUE;
 	private CurrencyUnit currency = Monetary.getCurrency("USD");

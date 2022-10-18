@@ -46,15 +46,6 @@ public class TourGuideService {
 	// Number of threads to handle the tracker location task
 	private ExecutorService executorService = Executors.newFixedThreadPool(100);
 
-	public List<Provider> getTripDeals(User user) {
-		int cumulatativeRewardPoints = user.getUserRewards().stream().mapToInt(UserReward::getRewardPoints).sum();
-		List<Provider> providers = tripPricer.getPrice(tripPricerApiKey, user.getUserId(),
-				user.getUserPreferences().getNumberOfAdults(), user.getUserPreferences().getNumberOfChildren(),
-				user.getUserPreferences().getTripDuration(), cumulatativeRewardPoints);
-		user.setTripDeals(providers);
-		return providers;
-	}
-
 	/**
 	 * Get the location for a given user
 	 * It checks the user's location history beforehand and if there are no results, it call the tracker
@@ -93,8 +84,6 @@ public class TourGuideService {
 					return null;
 				});
 
-		// log.debug("User : {}, Location : {}", user.getUserName(),
-		// userLocationFuture);
 		return userLocationFuture;
 	}
 
@@ -142,9 +131,9 @@ public class TourGuideService {
 	/**
 	 * This method gathers the users' current location based on their stored location history
 	 *
-	 * @return								UserLocationResponse containing the user id and the location
-	 * @throws InterruptedException			Thrown if there was en error while fetching user location
-	 * @throws ExecutionException			Thrown if there was en error while fetching user location
+	 * @return										UserLocationResponse containing the user id and the location
+	 * @throws InterruptedException					Thrown if there was en error while fetching user location
+	 * @throws ExecutionException					Thrown if there was en error while fetching user location
 	 */
 	public List<UserLocationResponse> getAllUsersLocation() throws InterruptedException, ExecutionException {
 
@@ -158,5 +147,33 @@ public class TourGuideService {
 		}
 
 		return response;
+	}
+
+	/**
+	 * Get Trip Deals based for a given user based on its preferences
+	 *
+	 * @param user									The User we want to fetch trip deals
+	 * @return										List<Provider> containing the travel agencies offers
+	 */
+	public List<Provider> getTripDeals(User user) {
+
+		int cumulatativeRewardPoints = user.getUserRewards().stream().mapToInt(UserReward::getRewardPoints).sum();
+
+		// Get a list of provider based on user preferences (number of adults, children
+		// and trip duration)
+		List<Provider> providers = tripPricer.getPrice(tripPricerApiKey, user.getUserId(),
+				user.getUserPreferences().getNumberOfAdults(), user.getUserPreferences().getNumberOfChildren(),
+				user.getUserPreferences().getTripDuration(), cumulatativeRewardPoints);
+
+		// Filtering providers that are in the price range of the user
+		double userLowerPoint = user.getUserPreferences().getLowerPricePoint().getNumber().doubleValue();
+		double userHigherPoint = user.getUserPreferences().getHighPricePoint().getNumber().doubleValue();
+		providers = providers.stream()
+				.filter(provider -> provider.price > userLowerPoint && provider.price < userHigherPoint)
+				.collect(Collectors.toList());
+
+		// Returning providers
+		user.setTripDeals(providers);
+		return providers;
 	}
 }

@@ -3,14 +3,14 @@ package tourGuide.domain;
 import gpsUtil.location.Attraction;
 import gpsUtil.location.VisitedLocation;
 import lombok.Data;
-import lombok.Generated;
+import lombok.NoArgsConstructor;
 
 @Data
-@Generated
+@NoArgsConstructor
 public class UserReward {
 
-	public final VisitedLocation visitedLocation;
-	public final Attraction attraction;
+	private VisitedLocation visitedLocation;
+	private Attraction attraction;
 	private int rewardPoints;
 
 	public UserReward(VisitedLocation visitedLocation, Attraction attraction, int rewardPoints) {
