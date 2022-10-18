@@ -172,7 +172,7 @@ public class TourGuideController {
 		throw new NullPointerException("Username was not found");
 	}
 
-	// Utility method to get user
+	// Utility method to get user from service
 	private User getUser(String userName) {
 		return userService.getUser(userName);
 	}
