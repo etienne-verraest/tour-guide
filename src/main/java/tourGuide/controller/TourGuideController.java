@@ -156,12 +156,25 @@ public class TourGuideController {
 		throw new NullPointerException("Username was not found");
 	}
 
+	/**
+	 * Get Trip Agencies based on the user preferences
+	 *
+	 * @param userName						String : The username we want to fetch
+	 * @return								List<Provider> containg travel agencies based on the user preferences
+	 */
 	@GetMapping("/getTripDeals")
-	public String getTripDeals(@RequestParam String userName) {
-		List<Provider> providers = tourGuideService.getTripDeals(getUser(userName));
-		return JsonStream.serialize(providers);
+	public ResponseEntity<List<Provider>> getTripDeals(@RequestParam String userName) {
+
+		User user = getUser(userName);
+		if (user != null) {
+			List<Provider> providers = tourGuideService.getTripDeals(user);
+			return new ResponseEntity<>(providers, HttpStatus.OK);
+		}
+
+		throw new NullPointerException("Username was not found");
 	}
 
+	// Utility method to get user
 	private User getUser(String userName) {
 		return userService.getUser(userName);
 	}

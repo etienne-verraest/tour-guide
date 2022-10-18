@@ -55,7 +55,8 @@ public class RewardsService {
 
 					// Using parallel streams to count faster on the filter method
 					if (user.getUserRewards().stream()
-							.filter(r -> r.attraction.attractionName.equals(attraction.attractionName)).count() == 0) {
+							.filter(r -> r.getAttraction().attractionName.equals(attraction.attractionName))
+							.count() == 0) {
 						if (nearAttraction(visitedLocation, attraction)) {
 							user.addUserReward(
 									new UserReward(visitedLocation, attraction, getRewardPoints(attraction, user)));
