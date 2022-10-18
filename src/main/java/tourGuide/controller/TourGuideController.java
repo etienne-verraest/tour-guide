@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.jsoniter.output.JsonStream;
 
 import gpsUtil.location.VisitedLocation;
-import lombok.extern.slf4j.Slf4j;
 import tourGuide.domain.User;
 import tourGuide.domain.UserPreferences;
 import tourGuide.domain.dto.UserPreferencesDto;
@@ -29,7 +28,6 @@ import tourGuide.service.TourGuideService;
 import tourGuide.service.UserService;
 import tripPricer.Provider;
 
-@Slf4j
 @RestController
 public class TourGuideController {
 

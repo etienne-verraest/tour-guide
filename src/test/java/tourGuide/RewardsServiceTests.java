@@ -1,83 +1,142 @@
 package tourGuide;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import gpsUtil.GpsUtil;
 import gpsUtil.location.Attraction;
+import gpsUtil.location.Location;
 import gpsUtil.location.VisitedLocation;
 import lombok.extern.slf4j.Slf4j;
+import rewardCentral.RewardCentral;
 import tourGuide.domain.User;
 import tourGuide.domain.UserReward;
 import tourGuide.service.RewardsService;
 import tourGuide.service.TourGuideService;
 import tourGuide.service.UserService;
-import tourGuide.tracker.Tracker;
 
 @Slf4j
 @RunWith(SpringRunner.class)
 @SpringBootTest
 public class RewardsServiceTests {
 
-	@Autowired
-	UserService userService;
+	@InjectMocks
+	RewardsService rewardsServiceMock;
 
-	@Autowired
-	TourGuideService tourGuideService;
+	@Mock
+	UserService userServiceMock;
 
-	@Autowired
-	RewardsService rewardsService;
-
-	@Autowired
-	Tracker tracker;
+	@Mock
+	TourGuideService tourGuideServiceMock;
 
 	GpsUtil gpsUtil = new GpsUtil();
 
+	RewardCentral rewardsCentral = new RewardCentral();
+
+	private User mockUser;
+
+	private List<User> listOfUserMock = new ArrayList<>();
+
+	@Before
+	public void initUser() {
+		// This call is important in order to reset the list when calling getAllUsers()
+		userServiceMock.initializeInternalUsers(0);
+
+		// Initializing users
+		mockUser = new User(UUID.randomUUID(), "Alpha", "000", "alpha@tourGuide.com");
+		listOfUserMock.add(mockUser);
+
+		// Adding users to the service
+		userServiceMock.addUser(mockUser);
+	}
+
 	@Test
-	public void userGetRewardsTest() throws InterruptedException, ExecutionException {
+	public void userGetRewardsTest_ShouldReturn_RewardsList() throws InterruptedException, ExecutionException {
 
 		// ARRANGE
-		User user = new User(UUID.randomUUID(), "jon", "000", "jon@tourGuide.com");
 		Attraction attraction = gpsUtil.getAttractions().get(0);
+		VisitedLocation visitedLocation = new VisitedLocation(mockUser.getUserId(), attraction, new Date());
+		CompletableFuture<VisitedLocation> visitedLocationFuture = CompletableFuture.completedFuture(visitedLocation);
+		when(tourGuideServiceMock.trackUserLocation(any(User.class))).thenReturn(visitedLocationFuture);
+
+		UserReward userReward = new UserReward(visitedLocation, attraction,
+				rewardsServiceMock.getRewardPoints(attraction, mockUser));
+		mockUser.addUserReward(userReward);
 
 		// ACT
-		user.addToVisitedLocations(new VisitedLocation(user.getUserId(), attraction, new Date()));
-		tourGuideService.trackUserLocation(user).get();
+		mockUser.addToVisitedLocations(visitedLocation);
+		tourGuideServiceMock.trackUserLocation(mockUser).get();
 
 		// ASSERT
-		List<UserReward> userRewards = user.getUserRewards();
-		log.debug("{}", userRewards);
+		List<UserReward> userRewards = mockUser.getUserRewards();
+		assertThat(userRewards).hasSize(1);
 	}
 
 	@Test
-	public void isWithinAttractionProximityTest() {
-		Attraction attraction = gpsUtil.getAttractions().get(0);
-		assertTrue(rewardsService.isWithinAttractionProximity(attraction, attraction));
-	}
-
-	@Test
-	public void nearAllAttractionsTest() {
+	public void isWithinAttractionProximityTest_ShouldReturn_True() {
 
 		// ARRANGE
-		rewardsService.setProximityBuffer(Integer.MAX_VALUE);
-		userService.initializeInternalUsers(1);
-		User user = userService.getAllUsers().get(0);
+		Attraction attraction = gpsUtil.getAttractions().get(0);
+		VisitedLocation visitedLocation = new VisitedLocation(mockUser.getUserId(), attraction, new Date());
+
+		// ASSERT
+		assertTrue(rewardsServiceMock.isWithinAttractionProximity(attraction, visitedLocation.location));
+	}
+
+	@Test
+	public void isNearAttractionTest_ShouldReturn_True() {
+
+		// ARRANGE
+		Attraction attraction = gpsUtil.getAttractions().get(0);
+		VisitedLocation visitedLocation = new VisitedLocation(mockUser.getUserId(), attraction, new Date());
 
 		// ACT
-		rewardsService.calculateRewards(user);
-		List<UserReward> userRewards = rewardsService.getUserRewards(user);
+		assertTrue(rewardsServiceMock.nearAttraction(visitedLocation, attraction));
+	}
 
-		log.debug("2{}", userRewards);
+	@Test
+	public void getRewardsPointsTest_ShouldReturn_PositiveResult() {
+
+		// ARRANGE
+		Attraction attraction = gpsUtil.getAttractions().get(0);
+
+		// ACT
+		int points = rewardsCentral.getAttractionRewardPoints(attraction.attractionId, mockUser.getUserId());
+
+		// ASSERT
+		assertThat(points).isNotNegative();
+
+	}
+
+	@Test
+	public void getDistanceTest_ShouldBeLessThan_100Miles() {
+
+		// ARRANGE
+		Location location1 = new Location(40.689930310941605, -74.04536481320433);
+		Location location2 = new Location(41.31882087521971, -72.92197916341115);
+
+		// ACT
+		double distance = rewardsServiceMock.getDistance(location1, location2);
+
+		// ASSERT
+		assertThat(distance).isLessThan(100);
 	}
 
 }
