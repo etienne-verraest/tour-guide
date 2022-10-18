@@ -38,17 +38,17 @@ import tourGuide.service.UserService;
 public class RewardsServiceTests {
 
 	@InjectMocks
-	RewardsService rewardsServiceMock;
+	private RewardsService rewardsServiceMock;
 
 	@Mock
-	UserService userServiceMock;
+	private UserService userServiceMock;
 
 	@Mock
-	TourGuideService tourGuideServiceMock;
+	private TourGuideService tourGuideServiceMock;
 
-	GpsUtil gpsUtil = new GpsUtil();
+	private GpsUtil gpsUtil = new GpsUtil();
 
-	RewardCentral rewardsCentral = new RewardCentral();
+	private RewardCentral rewardsCentral = new RewardCentral();
 
 	private User mockUser;
 
