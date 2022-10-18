@@ -45,10 +45,10 @@ public class RewardsService {
 	 */
 	public void calculateRewards(User user) {
 
-		CompletableFuture.runAsync(() -> {
+		List<VisitedLocation> userLocations = user.getVisitedLocations();
+		List<Attraction> attractions = gpsUtil.getAttractions();
 
-			List<VisitedLocation> userLocations = user.getVisitedLocations();
-			List<Attraction> attractions = gpsUtil.getAttractions();
+		CompletableFuture.runAsync(() -> {
 
 			for (VisitedLocation visitedLocation : userLocations) {
 				for (Attraction attraction : attractions) {
