@@ -6,8 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import lombok.extern.slf4j.Slf4j;
-import tourGuide.service.TourGuideService;
-import tourGuide.service.UserService;
 
 @Slf4j
 @Component
@@ -17,15 +15,7 @@ public class TrackerThread extends Thread {
 	private boolean exit = false;
 
 	@Autowired
-	private TourGuideService tourGuideService;
-
-	@Autowired
-	private UserService userService;
-
-	public TrackerThread(TourGuideService tourGuideService, UserService userService) {
-		this.tourGuideService = tourGuideService;
-		this.userService = userService;
-	}
+	private Tracker tracker;
 
 	/**
 	 * Runnable method of the thread.
@@ -33,7 +23,6 @@ public class TrackerThread extends Thread {
 	 */
 	@Override
 	public void run() {
-		Tracker tracker = new Tracker(tourGuideService, userService);
 		while (!exit) {
 
 			if (Thread.currentThread().isInterrupted()) {

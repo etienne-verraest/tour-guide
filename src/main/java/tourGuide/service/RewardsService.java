@@ -12,10 +12,12 @@ import gpsUtil.location.Attraction;
 import gpsUtil.location.Location;
 import gpsUtil.location.VisitedLocation;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import rewardCentral.RewardCentral;
 import tourGuide.domain.User;
 import tourGuide.domain.UserReward;
 
+@Slf4j
 @Service
 public class RewardsService {
 
@@ -43,22 +45,21 @@ public class RewardsService {
 	 */
 	public void calculateRewards(User user) {
 
-		// Getting users location and attractions
-		List<VisitedLocation> userLocations = user.getVisitedLocations();
-		List<Attraction> attractions = gpsUtil.getAttractions();
-
-		// Calculate rewards for a given user and the attractions from the application
 		CompletableFuture.runAsync(() -> {
+
+			List<VisitedLocation> userLocations = user.getVisitedLocations();
+			List<Attraction> attractions = gpsUtil.getAttractions();
+
 			for (VisitedLocation visitedLocation : userLocations) {
 				for (Attraction attraction : attractions) {
 
 					// Using parallel streams to count faster on the filter method
-					if ((user.getUserRewards().parallelStream()
-							.filter(r -> r.attraction.attractionName.equals(attraction.attractionName)).count() == 0)
-							&& nearAttraction(visitedLocation, attraction)) {
-
-						user.addUserReward(
-								new UserReward(visitedLocation, attraction, getRewardPoints(attraction, user)));
+					if (user.getUserRewards().stream()
+							.filter(r -> r.attraction.attractionName.equals(attraction.attractionName)).count() == 0) {
+						if (nearAttraction(visitedLocation, attraction)) {
+							user.addUserReward(
+									new UserReward(visitedLocation, attraction, getRewardPoints(attraction, user)));
+						}
 					}
 				}
 			}
@@ -83,7 +84,7 @@ public class RewardsService {
 	 * @return										True if the distance calculated is in the attractionProximityRange
 	 */
 	public boolean isWithinAttractionProximity(Attraction attraction, Location location) {
-		return getDistance(attraction, location) < attractionProximityRange;
+		return getDistance(attraction, location) > attractionProximityRange ? false : true;
 	}
 
 	/**
@@ -94,7 +95,7 @@ public class RewardsService {
 	 * @return										True if the distance calculate is in the proximityBuffer
 	 */
 	private boolean nearAttraction(VisitedLocation visitedLocation, Attraction attraction) {
-		return getDistance(attraction, visitedLocation.location) < proximityBuffer;
+		return getDistance(attraction, visitedLocation.location) > proximityBuffer ? false : true;
 	}
 
 	/**

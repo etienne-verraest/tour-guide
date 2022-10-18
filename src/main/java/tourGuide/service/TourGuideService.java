@@ -30,9 +30,6 @@ import tripPricer.TripPricer;
 @Service
 public class TourGuideService {
 
-	@Value("${tripPricer.api.key}")
-	public String tripPricerApiKey;
-
 	@Autowired
 	private RewardsService rewardsService;
 
@@ -42,6 +39,9 @@ public class TourGuideService {
 	private GpsUtil gpsUtil = new GpsUtil();
 
 	private TripPricer tripPricer = new TripPricer();
+
+	@Value("${tripPricer.api.key}")
+	public String tripPricerApiKey;
 
 	// Number of threads to handle the tracker location task
 	private ExecutorService executorService = Executors.newFixedThreadPool(100);

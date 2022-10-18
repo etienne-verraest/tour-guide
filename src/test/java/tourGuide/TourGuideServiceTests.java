@@ -1,132 +1,113 @@
 package tourGuide;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.when;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.ExecutionException;
 
-import org.junit.Ignore;
+import org.junit.Before;
 import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.junit4.SpringRunner;
 
-import gpsUtil.GpsUtil;
-import gpsUtil.location.Attraction;
 import gpsUtil.location.VisitedLocation;
-import rewardCentral.RewardCentral;
+import lombok.extern.slf4j.Slf4j;
 import tourGuide.domain.User;
 import tourGuide.service.RewardsService;
 import tourGuide.service.TourGuideService;
 import tourGuide.service.UserService;
-import tripPricer.Provider;
 
+@Slf4j
+@RunWith(SpringRunner.class)
+@SpringBootTest
 public class TourGuideServiceTests {
 
-	@Autowired
-	UserService userService;
+	@InjectMocks
+	TourGuideService tourGuideServiceMock;
 
-	@Test
-	public void getUserLocation() {
-		GpsUtil gpsUtil = new GpsUtil();
-		RewardsService rewardsService = new RewardsService(gpsUtil, new RewardCentral());
-		userService.setInternalUserNumber(0);
-		TourGuideService tourGuideService = new TourGuideService(gpsUtil, rewardsService);
+	@Mock
+	UserService userServiceMock;
 
-		User user = new User(UUID.randomUUID(), "jon", "000", "jon@tourGuide.com");
-		VisitedLocation visitedLocation = tourGuideService.trackUserLocation(user);
-		tourGuideService.tracker.stopTracking();
-		assertTrue(visitedLocation.userId.equals(user.getUserId()));
+	@Mock
+	RewardsService rewardsServiceMock;
+
+	private User firstUser;
+
+	private List<User> listOfUser = new ArrayList<>();
+
+	@Before
+	public void initUsers() {
+
+		// This call is important in order to reset the list when calling getAllUsers()
+		userServiceMock.initializeInternalUsers(0);
+
+		// Initializing users
+		firstUser = new User(UUID.randomUUID(), "Alpha", "000", "alpha@tourGuide.com");
+		listOfUser.add(firstUser);
+
+		// Adding users to the service
+		userServiceMock.addUser(firstUser);
 	}
 
 	@Test
-	public void addUser() {
-		GpsUtil gpsUtil = new GpsUtil();
-		RewardsService rewardsService = new RewardsService(gpsUtil, new RewardCentral());
-		userService.setInternalUserNumber(0);
-		TourGuideService tourGuideService = new TourGuideService(gpsUtil, rewardsService);
+	public void getUserLocation_ShouldReturn_FirstUserLocation() throws InterruptedException, ExecutionException {
 
-		User user = new User(UUID.randomUUID(), "jon", "000", "jon@tourGuide.com");
-		User user2 = new User(UUID.randomUUID(), "jon2", "000", "jon2@tourGuide.com");
+		// ACT
+		VisitedLocation visitedLocation = tourGuideServiceMock.trackUserLocation(firstUser).get();
 
-		userService.addUser(user);
-		userService.addUser(user2);
-
-		User retrivedUser = userService.getUser(user.getUserName());
-		User retrivedUser2 = userService.getUser(user2.getUserName());
-
-		tourGuideService.tracker.stopTracking();
-
-		assertEquals(user, retrivedUser);
-		assertEquals(user2, retrivedUser2);
+		// ASSERT
+		assertEquals(visitedLocation.userId, firstUser.getUserId());
 	}
 
 	@Test
-	public void getAllUsers() {
-		GpsUtil gpsUtil = new GpsUtil();
-		RewardsService rewardsService = new RewardsService(gpsUtil, new RewardCentral());
-		userService.setInternalUserNumber(0);
-		TourGuideService tourGuideService = new TourGuideService(gpsUtil, rewardsService);
+	public void addUser_ShouldBeSuccessful() {
 
-		User user = new User(UUID.randomUUID(), "jon", "000", "jon@tourGuide.com");
-		User user2 = new User(UUID.randomUUID(), "jon2", "000", "jon2@tourGuide.com");
+		// ARRANGE
+		List<User> mockSecondList = listOfUser;
 
-		userService.addUser(user);
-		userService.addUser(user2);
+		User secondUser = new User(UUID.randomUUID(), "Bravo", "111", "bravo@tourGuide.com");
+		userServiceMock.addUser(secondUser);
+		mockSecondList.add(secondUser);
 
-		List<User> allUsers = userService.getAllUsers();
+		when(userServiceMock.getAllUsers()).thenReturn(mockSecondList);
 
-		tourGuideService.tracker.stopTracking();
+		// ACT
+		List<User> users = userServiceMock.getAllUsers();
 
-		assertTrue(allUsers.contains(user));
-		assertTrue(allUsers.contains(user2));
+		// ASSERT
+		assertEquals(secondUser.getUserName(), users.get(1).getUserName());
 	}
 
 	@Test
-	public void trackUser() {
-		GpsUtil gpsUtil = new GpsUtil();
-		RewardsService rewardsService = new RewardsService(gpsUtil, new RewardCentral());
-		userService.setInternalUserNumber(0);
-		TourGuideService tourGuideService = new TourGuideService(gpsUtil, rewardsService);
+	public void getUser_ShouldReturn_FirstUser() {
 
-		User user = new User(UUID.randomUUID(), "jon", "000", "jon@tourGuide.com");
-		VisitedLocation visitedLocation = tourGuideService.trackUserLocation(user);
+		// ARRANGE
+		when(userServiceMock.getUser(anyString())).thenReturn(firstUser);
 
-		tourGuideService.tracker.stopTracking();
+		// ACT
+		User retrivedUser = userServiceMock.getUser("Alpha");
 
-		assertEquals(user.getUserId(), visitedLocation.userId);
+		// ASSERT
+		assertEquals(firstUser.getUserName(), retrivedUser.getUserName());
 	}
 
-	@Ignore // Not yet implemented
 	@Test
-	public void getNearbyAttractions() {
-		GpsUtil gpsUtil = new GpsUtil();
-		RewardsService rewardsService = new RewardsService(gpsUtil, new RewardCentral());
-		userService.setInternalUserNumber(0);
-		TourGuideService tourGuideService = new TourGuideService(gpsUtil, rewardsService);
+	public void getAllUsersTest_ShouldReturn_FirstUser() {
 
-		User user = new User(UUID.randomUUID(), "jon", "000", "jon@tourGuide.com");
-		VisitedLocation visitedLocation = tourGuideService.trackUserLocation(user);
+		// ARRANGE
+		when(userServiceMock.getAllUsers()).thenReturn(listOfUser);
 
-		List<Attraction> attractions = tourGuideService.getNearByAttractions(visitedLocation);
+		// ACT
+		List<User> users = userServiceMock.getAllUsers();
 
-		tourGuideService.tracker.stopTracking();
-
-		assertEquals(5, attractions.size());
+		// ASSERT
+		assertEquals(users.get(0).getUserName(), firstUser.getUserName());
 	}
-
-	public void getTripDeals() {
-		GpsUtil gpsUtil = new GpsUtil();
-		RewardsService rewardsService = new RewardsService(gpsUtil, new RewardCentral());
-		userService.setInternalUserNumber(0);
-		TourGuideService tourGuideService = new TourGuideService(gpsUtil, rewardsService);
-
-		User user = new User(UUID.randomUUID(), "jon", "000", "jon@tourGuide.com");
-
-		List<Provider> providers = tourGuideService.getTripDeals(user);
-
-		tourGuideService.tracker.stopTracking();
-
-		assertEquals(10, providers.size());
-	}
-
 }

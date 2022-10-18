@@ -7,22 +7,19 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import lombok.Getter;
-import tourGuide.service.TourGuideService;
-import tourGuide.service.UserService;
+import lombok.Setter;
 import tourGuide.tracker.TrackerThread;
 
 @SpringBootApplication
 public class Application implements CommandLineRunner {
 
 	@Autowired
-	private TourGuideService tourGuideService;
-
-	@Autowired
-	private UserService userService;
+	private TrackerThread trackerThread;
 
 	@Value("${cores.number}")
 	public String numberOfCores;
 
+	@Setter
 	@Getter
 	@Value("${internal.liveTestMode.enabled}")
 	public boolean liveTestMode;
@@ -42,7 +39,6 @@ public class Application implements CommandLineRunner {
 
 		// We only start the tracker thread if the mode has been set to live testing
 		if (isLiveTestMode()) {
-			TrackerThread trackerThread = new TrackerThread(tourGuideService, userService);
 			trackerThread.start();
 		}
 	}
