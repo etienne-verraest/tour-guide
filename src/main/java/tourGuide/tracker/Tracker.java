@@ -36,11 +36,6 @@ public class Tracker {
 	@Value("${internal.userNumber}")
 	public int internalUserNumber;
 
-	public Tracker(TourGuideService tourGuideService, UserService userService) {
-		this.tourGuideService = tourGuideService;
-		this.userService = userService;
-	}
-
 	/**
 	 * When tracker has been created, we check if the testMode is enabled
 	 * If test mode is enabled, we initialize internal users
