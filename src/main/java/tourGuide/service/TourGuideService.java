@@ -169,7 +169,7 @@ public class TourGuideService {
 		double userLowerPoint = user.getUserPreferences().getLowerPricePoint().getNumber().doubleValue();
 		double userHigherPoint = user.getUserPreferences().getHighPricePoint().getNumber().doubleValue();
 		providers = providers.stream()
-				.filter(provider -> provider.price > userLowerPoint && provider.price < userHigherPoint)
+				.filter(provider -> provider.price >= userLowerPoint && provider.price <= userHigherPoint)
 				.collect(Collectors.toList());
 
 		// Returning providers

@@ -16,7 +16,6 @@ public class UserPreferences {
 	 * Default values for user preferences, can be changed with a POST Request (see TourGuideController)
 	 *
 	 */
-
 	private int attractionProximity = Integer.MAX_VALUE;
 	private CurrencyUnit currency = Monetary.getCurrency("USD");
 	private Money lowerPricePoint = Money.of(0, currency);

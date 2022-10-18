@@ -36,9 +36,9 @@ public class UserServiceTests {
 	@Mock
 	RewardsService rewardsServiceMock;
 
-	private User firstUser;
+	private User firstUserMock;
 
-	private List<User> listOfUser = new ArrayList<>();
+	private List<User> listOfUserMock = new ArrayList<>();
 
 	@Before
 	public void initUsers() {
@@ -47,28 +47,28 @@ public class UserServiceTests {
 		userServiceMock.initializeInternalUsers(0);
 
 		// Initializing users
-		firstUser = new User(UUID.randomUUID(), "Alpha", "000", "alpha@tourGuide.com");
-		listOfUser.add(firstUser);
+		firstUserMock = new User(UUID.randomUUID(), "Alpha", "000", "alpha@tourGuide.com");
+		listOfUserMock.add(firstUserMock);
 
 		// Adding users to the service
-		userServiceMock.addUser(firstUser);
+		userServiceMock.addUser(firstUserMock);
 	}
 
 	@Test
 	public void getUserLocation_ShouldReturn_FirstUserLocation() throws InterruptedException, ExecutionException {
 
 		// ACT
-		VisitedLocation visitedLocation = tourGuideServiceMock.trackUserLocation(firstUser).get();
+		VisitedLocation visitedLocation = tourGuideServiceMock.trackUserLocation(firstUserMock).get();
 
 		// ASSERT
-		assertEquals(visitedLocation.userId, firstUser.getUserId());
+		assertEquals(visitedLocation.userId, firstUserMock.getUserId());
 	}
 
 	@Test
 	public void addUser_ShouldBeSuccessful() {
 
 		// ARRANGE
-		List<User> mockSecondList = listOfUser;
+		List<User> mockSecondList = listOfUserMock;
 
 		User secondUser = new User(UUID.randomUUID(), "Bravo", "111", "bravo@tourGuide.com");
 		userServiceMock.addUser(secondUser);
@@ -87,25 +87,25 @@ public class UserServiceTests {
 	public void getUser_ShouldReturn_FirstUser() {
 
 		// ARRANGE
-		when(userServiceMock.getUser(anyString())).thenReturn(firstUser);
+		when(userServiceMock.getUser(anyString())).thenReturn(firstUserMock);
 
 		// ACT
 		User retrivedUser = userServiceMock.getUser("Alpha");
 
 		// ASSERT
-		assertEquals(firstUser.getUserName(), retrivedUser.getUserName());
+		assertEquals(firstUserMock.getUserName(), retrivedUser.getUserName());
 	}
 
 	@Test
 	public void getAllUsersTest_ShouldReturn_FirstUser() {
 
 		// ARRANGE
-		when(userServiceMock.getAllUsers()).thenReturn(listOfUser);
+		when(userServiceMock.getAllUsers()).thenReturn(listOfUserMock);
 
 		// ACT
 		List<User> users = userServiceMock.getAllUsers();
 
 		// ASSERT
-		assertEquals(users.get(0).getUserName(), firstUser.getUserName());
+		assertEquals(users.get(0).getUserName(), firstUserMock.getUserName());
 	}
 }

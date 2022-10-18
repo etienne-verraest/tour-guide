@@ -95,7 +95,7 @@ public class RewardsService {
 	 * @param attraction							Attraction : The attraction we want to check
 	 * @return										True if the distance calculate is in the proximityBuffer
 	 */
-	private boolean nearAttraction(VisitedLocation visitedLocation, Attraction attraction) {
+	public boolean nearAttraction(VisitedLocation visitedLocation, Attraction attraction) {
 		return getDistance(attraction, visitedLocation.location) > proximityBuffer ? false : true;
 	}
 
