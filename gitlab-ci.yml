@@ -1,0 +1,29 @@
+image: suranagivinod/openjdk8:jdk
+
+stages:
+  - build
+  - test
+
+before_script:
+  - echo "Start CI/CD"
+
+build:
+  stage: build
+  script:
+    - ./gradlew assemble
+  artifacts:
+    paths:
+      - build/libs/*.jar
+    expire_in: 1 week
+  only:
+    - master
+
+test:
+  stage: test
+  script:
+    - ./gradlew check
+  only:
+    - master
+
+after_script:
+  - echo "End CI/CD"
