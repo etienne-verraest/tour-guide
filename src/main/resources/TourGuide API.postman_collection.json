@@ -1,0 +1,163 @@
+{
+	"info": {
+		"_postman_id": "eca69ab9-c96e-4ed9-a705-d5e2d53dd448",
+		"name": "TourGuide API",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "22392228"
+	},
+	"item": [
+		{
+			"name": "Get User Location",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/getLocation?userName=internalUser50",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"getLocation"
+					],
+					"query": [
+						{
+							"key": "userName",
+							"value": "internalUser50"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get User 5 Closest Attractions",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/getNearbyAttractions?userName=internalUser42",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"getNearbyAttractions"
+					],
+					"query": [
+						{
+							"key": "userName",
+							"value": "internalUser42"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get  every users' location",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/getAllCurrentLocations",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"getAllCurrentLocations"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get User Trip Deals",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/getTripDeals?userName=internalUser50",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"getTripDeals"
+					],
+					"query": [
+						{
+							"key": "userName",
+							"value": "internalUser50"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Set User Preferences",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{ \r\n    \"attractionProximity\": 200,\r\n    \"currency\": \"USD\",\r\n    \"lowerPricePoint\": 0,\r\n    \"highPricePoint\": 3000,\r\n    \"tripDuration\": 7,\r\n    \"numberOfAdults\": 3,\r\n    \"numberOfChildren\": 0\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/setUserPreferences?userName=internalUser42",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"setUserPreferences"
+					],
+					"query": [
+						{
+							"key": "userName",
+							"value": "internalUser42"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get User Rewards",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/getRewards?userName=internalUser42",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"getRewards"
+					],
+					"query": [
+						{
+							"key": "userName",
+							"value": "internalUser42"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
