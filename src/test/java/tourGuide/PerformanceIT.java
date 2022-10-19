@@ -67,7 +67,7 @@ public class PerformanceIT {
 	public void highVolumeTrackLocation() throws InterruptedException, ExecutionException {
 
 		// ARRANGE
-		userService.initializeInternalUsers(1000);
+		userService.initializeInternalUsers(100000);
 		StopWatch stopWatch = new StopWatch();
 
 		// ACT
@@ -85,7 +85,7 @@ public class PerformanceIT {
 	public void highVolumeGetRewards() {
 
 		// ARRANGE
-		userService.initializeInternalUsers(1000);
+		userService.initializeInternalUsers(100000);
 		Attraction attraction = gpsUtil.getAttractions().get(0);
 		List<User> users = userService.getAllUsers();
 		StopWatch stopWatch = new StopWatch();
@@ -100,7 +100,7 @@ public class PerformanceIT {
 		// ASSERT
 		long getTime = stopWatch.getTime();
 		log.debug("[TEST] highVolumeGetRewards() Total Execution Time : {} ms.", getTime);
-		assertTrue(TimeUnit.MINUTES.toSeconds(20) >= TimeUnit.MILLISECONDS.toSeconds(stopWatch.getTime()));
+		assertTrue(TimeUnit.MINUTES.toSeconds(20) >= TimeUnit.MILLISECONDS.toSeconds(getTime));
 	}
 
 }
