@@ -58,6 +58,7 @@ public class RewardsService {
 							.filter(r -> r.getAttraction().attractionName.equals(attraction.attractionName))
 							.count() == 0) {
 						if (nearAttraction(visitedLocation, attraction)) {
+							log.debug("[Rewards] Rewards calculcated for user {}", user.getUserName());
 							user.addUserReward(
 									new UserReward(visitedLocation, attraction, getRewardPoints(attraction, user)));
 						}

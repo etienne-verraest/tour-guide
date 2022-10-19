@@ -15,11 +15,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.jsoniter.output.JsonStream;
-
 import gpsUtil.location.VisitedLocation;
 import tourGuide.domain.User;
 import tourGuide.domain.UserPreferences;
+import tourGuide.domain.UserReward;
 import tourGuide.domain.dto.UserPreferencesDto;
 import tourGuide.domain.response.NearbyAttractionsResponse;
 import tourGuide.domain.response.UserLocationResponse;
@@ -43,7 +42,7 @@ public class TourGuideController {
 	/**
 	 * Return a string when calling the default url (in order to test if the API is UP or DOWB)
 	 *
-	 * @return								String is returned if the connection is succesful
+	 * @return									String is returned if the connection is succesful
 	 */
 	@GetMapping("/")
 	public ResponseEntity<String> defaultUrl() {
@@ -53,48 +52,74 @@ public class TourGuideController {
 	/**
 	 * Get location of a given user
 	 *
-	 * @param userName						String : the name of the user to fetch location
-	 * @return								Location with longitude and latitude
-	 * @throws ExecutionException
-	 * @throws InterruptedException
+	 * @param userName							String : the name of the user to fetch location
+	 * @return									Location with longitude and latitude
+	 * @throws ExecutionException				Thrown if there was en error while fetching user location
+	 * @throws InterruptedException				Thrown if there was en error while fetching user location
 	 */
 	@GetMapping("/getLocation")
 	public ResponseEntity<VisitedLocation> getLocation(@RequestParam String userName)
 			throws InterruptedException, ExecutionException {
-		VisitedLocation visitedLocation = tourGuideService.getUserLocation(getUser(userName));
-		return new ResponseEntity<>(visitedLocation, HttpStatus.OK);
+
+		User user = getUser(userName);
+		if (user != null) {
+			VisitedLocation visitedLocation = tourGuideService.getUserLocation(getUser(userName));
+			return new ResponseEntity<>(visitedLocation, HttpStatus.OK);
+		}
+
+		throw new NullPointerException("Username was not found");
 	}
 
 	/**
 	 * Get 5 closest attractions for a given user
 	 *
-	 * @param userName						String : the name of the user to fetch attractions
-	 * @return								5 closest attractions with related datas
-	 * @throws ExecutionException
-	 * @throws InterruptedException
+	 * @param userName							String : the name of the user to fetch attractions
+	 * @return									5 closest attractions with related datas
+	 * @throws ExecutionException				Thrown if there was en error while fetching user location
+	 * @throws InterruptedException				Thrown if there was en error while fetching user location
 	 */
 	@GetMapping("/getNearbyAttractions")
 	public ResponseEntity<NearbyAttractionsResponse> getNearbyAttractions(@RequestParam String userName)
 			throws InterruptedException, ExecutionException {
-		return new ResponseEntity<>(tourGuideService.getNearByAttractions(getUser(userName)), HttpStatus.OK);
+
+		User user = getUser(userName);
+		if (user != null) {
+			return new ResponseEntity<>(tourGuideService.getNearByAttractions(getUser(userName)), HttpStatus.OK);
+		}
+
+		throw new NullPointerException("Username was not found");
 	}
 
 	/**
 	 * Get location of every user registered on the application
 	 *
-	 * @return								A List with every user id and their location
-	 * @throws ExecutionException
-	 * @throws InterruptedException
+	 * @return									A List with every user id and their location
+	 * @throws ExecutionException				Thrown if there was en error while fetching user location
+	 * @throws InterruptedException				Thrown if there was en error while fetching user location
 	 */
 	@GetMapping("/getAllCurrentLocations")
 	public ResponseEntity<List<UserLocationResponse>> getAllCurrentLocations()
 			throws InterruptedException, ExecutionException {
+
 		return new ResponseEntity<>(tourGuideService.getAllUsersLocation(), HttpStatus.OK);
 	}
 
+	/**
+	 * Get rewards for a given user
+	 *
+	 * @param userName						String : the name of the user to fetch rewards
+	 * @return								A List with user's rewards
+	 */
 	@GetMapping("/getRewards")
-	public String getRewards(@RequestParam String userName) {
-		return JsonStream.serialize(rewardsService.getUserRewards(getUser(userName)));
+	public ResponseEntity<List<UserReward>> getRewards(@RequestParam String userName) {
+
+		User user = getUser(userName);
+		if (user != null) {
+			List<UserReward> rewards = rewardsService.getUserRewards(user);
+			return new ResponseEntity<>(rewards, HttpStatus.OK);
+		}
+
+		throw new NullPointerException("Username was not found");
 	}
 
 	/**
