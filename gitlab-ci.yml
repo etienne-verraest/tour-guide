@@ -10,6 +10,7 @@ before_script:
 build:
   stage: build
   script:
+    - chmod +x ./gradlew
     - ./gradlew assemble
   artifacts:
     paths:
@@ -21,9 +22,10 @@ build:
 test:
   stage: test
   script:
+    - chmod +x ./gradlew
     - ./gradlew check
   only:
     - master
 
 after_script:
-  - echo "End CI/CD"
+  - echo "End CI/CD
