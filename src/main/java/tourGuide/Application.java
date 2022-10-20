@@ -17,12 +17,12 @@ public class Application implements CommandLineRunner {
 	private TrackerThread trackerThread;
 
 	@Value("${cores.number}")
-	public String numberOfCores;
+	private String numberOfCores;
 
 	@Setter
 	@Getter
 	@Value("${internal.liveTestMode.enabled}")
-	public boolean liveTestMode;
+	private boolean liveTestMode;
 
 	public static void main(String[] args) {
 		SpringApplication.run(Application.class, args);

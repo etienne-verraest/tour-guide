@@ -29,12 +29,12 @@ public class Tracker {
 
 	@Getter
 	@Value("${internal.liveTestMode.enabled}")
-	public boolean liveTestMode;
+	private boolean liveTestMode;
 
 	@Setter
 	@Getter
 	@Value("${internal.userNumber}")
-	public int internalUserNumber;
+	private int internalUserNumber;
 
 	/**
 	 * When tracker has been created, we check if the testMode is enabled
