@@ -7,34 +7,21 @@ import static org.mockito.Mockito.when;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.ExecutionException;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.mockito.runners.MockitoJUnitRunner;
 
-import gpsUtil.location.VisitedLocation;
 import tourGuide.domain.User;
-import tourGuide.service.RewardsService;
-import tourGuide.service.TourGuideService;
 import tourGuide.service.UserService;
 
-@RunWith(SpringRunner.class)
-@SpringBootTest
+@RunWith(MockitoJUnitRunner.class)
 public class UserServiceTests {
 
-	@InjectMocks
-	TourGuideService tourGuideServiceMock;
-
 	@Mock
-	UserService userServiceMock;
-
-	@Mock
-	RewardsService rewardsServiceMock;
+	private UserService userServiceMock;
 
 	private User firstUserMock;
 
@@ -52,16 +39,6 @@ public class UserServiceTests {
 
 		// Adding users to the service
 		userServiceMock.addUser(firstUserMock);
-	}
-
-	@Test
-	public void getUserLocation_ShouldReturn_FirstUserLocation() throws InterruptedException, ExecutionException {
-
-		// ACT
-		VisitedLocation visitedLocation = tourGuideServiceMock.trackUserLocation(firstUserMock).get();
-
-		// ASSERT
-		assertEquals(visitedLocation.userId, firstUserMock.getUserId());
 	}
 
 	@Test

@@ -1,6 +1,7 @@
 package tourGuide;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
@@ -18,14 +19,12 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringRunner;
 
 import gpsUtil.GpsUtil;
 import gpsUtil.location.Attraction;
 import gpsUtil.location.VisitedLocation;
-import lombok.extern.slf4j.Slf4j;
 import tourGuide.domain.User;
 import tourGuide.domain.UserPreferences;
 import tourGuide.domain.response.NearbyAttractionsResponse;
@@ -34,11 +33,8 @@ import tourGuide.service.RewardsService;
 import tourGuide.service.TourGuideService;
 import tourGuide.service.UserService;
 import tripPricer.Provider;
-import tripPricer.TripPricer;
 
-@Slf4j
-@RunWith(SpringRunner.class)
-@SpringBootTest
+@RunWith(MockitoJUnitRunner.class)
 public class TourGuideServiceTests {
 
 	@InjectMocks
@@ -51,8 +47,6 @@ public class TourGuideServiceTests {
 	private UserService userServiceMock;
 
 	private GpsUtil gpsUtil = new GpsUtil();
-
-	private TripPricer tripPricer = new TripPricer();
 
 	@Value("${tripPricer.api.key}")
 	public String tripPricerApiKey;
@@ -150,6 +144,16 @@ public class TourGuideServiceTests {
 		// ASSERT
 		assertThat(response).hasSize(2);
 
+	}
+
+	@Test
+	public void getUserLocation_ShouldReturn_FirstUserLocation() throws InterruptedException, ExecutionException {
+
+		// ACT
+		VisitedLocation visitedLocation = tourGuideServiceMock.trackUserLocation(mockUser).get();
+
+		// ASSERT
+		assertEquals(visitedLocation.userId, mockUser.getUserId());
 	}
 
 }

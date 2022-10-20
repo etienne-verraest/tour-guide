@@ -67,7 +67,7 @@ public class PerformanceIT {
 	public void highVolumeTrackLocation() throws InterruptedException, ExecutionException {
 
 		// ARRANGE
-		userService.initializeInternalUsers(100000);
+		userService.initializeInternalUsers(30000);
 		StopWatch stopWatch = new StopWatch();
 
 		// ACT
@@ -85,7 +85,7 @@ public class PerformanceIT {
 	public void highVolumeGetRewards() {
 
 		// ARRANGE
-		userService.initializeInternalUsers(100000);
+		userService.initializeInternalUsers(30000);
 		Attraction attraction = gpsUtil.getAttractions().get(0);
 		List<User> users = userService.getAllUsers();
 		StopWatch stopWatch = new StopWatch();
